@@ -1,5 +1,6 @@
 *.aux
 *.bcf
+*.pdf
 *.glo
 *.idx
 *.log
