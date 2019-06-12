@@ -1,18 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Masters/Doctoral Thesis 
-% LaTeX Template
-% Version 2.5 (27/8/17)
-%
-% This template was downloaded from:
-% http://www.LaTeXTemplates.com
-%
-% Version 2.x major modifications by:
-% Vel (vel@latextemplates.com)
-%
-% This template is based on a template by:
-% Steve Gunn (http://users.ecs.soton.ac.uk/srg/softwaretools/document/templates/)
-% Sunil Patel (http://www.sunilpatel.co.uk/thesis-template/)
-%
+
 % Template license:
 % CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
 %
@@ -41,6 +28,7 @@ english, % ngerman for German
 \usepackage[utf8]{inputenc} % Required for inputting international characters
 \usepackage[T1]{fontenc} % Output font encoding for international characters
 
+\usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{booktabs} % for tables
 \usepackage{mathpazo} % Use the Palatino font by default
@@ -51,6 +39,7 @@ english, % ngerman for German
 
 
 \begin{document}
+	
 	\title{Microrna binding sites prediction \\
 		using Deep Learning}
 	\author{Simone Sinigaglia}
@@ -59,6 +48,10 @@ english, % ngerman for German
 	\matricola{902960}
 	\relatore{Prof. Sebastiano Vigna}
 	\correlatore{Prof. Paolo Boldi}
+	
+	\begin{center}
+		\includegraphics{Figures/logo_unimi}\\[1cm]
+	\end{center}
 	
 	\beforepreface
 	Vorrei ringraziare soprattutto \dots
@@ -72,7 +65,7 @@ english, % ngerman for German
 %
 %---------------------------------------------------------------------------------------
 
-\include{Chapters/Chapter1}
+	\include{Chapters/Chapter1}
 
 %---------------------------------------------------------------------------------------
 %
@@ -80,16 +73,17 @@ english, % ngerman for German
 %
 %---------------------------------------------------------------------------------------
 	
-\appendix % Cue to tell LaTeX that the following "chapters" are Appendices
-\include{Appendices/AppendixA}
+	\appendix % Cue to tell LaTeX that the following "chapters" are Appendices
+	\include{Appendices/AppendixA}
 
 %---------------------------------------------------------------------------------------%
 %	BIBLIOGRAPHY
 %
 %---------------------------------------------------------------------------------------
-\bibliographystyle{cacm}
-\bibliography{example.bib}
-\addcontentsline{toc}{chapter}{Bibliography}
+
+	\bibliography{biblio}
+	\bibliographystyle{acm}
+	%\addcontentsline{toc}{chapter}{Bibliography}
 
 %----------------------------------------------------------------------------------------
 
