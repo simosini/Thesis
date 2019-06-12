@@ -36,11 +36,17 @@ english, % ngerman for German
 \usepackage{tesi} % thesis structure
 \usepackage{url}
 \usepackage[autostyle=true]{csquotes} % Required to generate language-dependent quotes in the bibliography
+\usepackage[english]{babel}
+
+\usepackage{fancyhdr} 
+\fancyhf{}
+\cfoot{\thepage}
+\pagestyle{fancy}
 
 
 \begin{document}
 	
-	\title{Microrna binding sites prediction \\
+	\title{MicroRNA target prediction \\
 		using Deep Learning}
 	\author{Simone Sinigaglia}
 	\dept{Computer Science}
@@ -66,6 +72,7 @@ english, % ngerman for German
 %---------------------------------------------------------------------------------------
 
 	\include{Chapters/Chapter1}
+	\include{Chapters/Chapter2}
 
 %---------------------------------------------------------------------------------------
 %
@@ -83,7 +90,6 @@ english, % ngerman for German
 
 	\bibliography{biblio}
 	\bibliographystyle{acm}
-	%\addcontentsline{toc}{chapter}{Bibliography}
 
 %----------------------------------------------------------------------------------------
 
