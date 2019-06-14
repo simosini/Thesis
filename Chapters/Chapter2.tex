@@ -33,7 +33,12 @@ Another key factor in target prediction is that 3'UTRs are prone to change under
 While many miRNA targets have been computationally predicted only a limited number
 have been experimentally validated. Moreover, although a variety of miRNA target prediction algorithms are implemented, results amongst them are generally inconsistent and correctly identifying functional miRNA targets remains a challenging task.
 
-The various methodologies implemented use several different approaches and analyze a wide range of features for this task, however, the most common characteristics are \cite{common_features}:
+The average performance of target prediction tools, which typically identify approximately 80\% of known miRNA targets, indicates that the mechanisms associated with miRNA-regulated processes remain poorly understood. Thus, there is a room for novel approaches to improve the knowledge of the rules that govern their targeting process \cite{targeting_rules}
+
+The various methodologies implemented use several different approaches and analyze a wide range of features for this task. Almost all target prediction methods are rule-based or adopt machine learning methodology with varying success. Rule-based systems incorporate various human-crafted descriptors to represent miRNA:gene target binding (e.g. type of pairs in the site, binding stability, or conservation of the target site among species). Machine learning techniques also use those descriptors, but as input features to machine learning models. The limitation of both these approaches is indeed the process of feature selection and representation, which is constrained by
+the use of human selected descriptors to model a process that is not fully understood.
+
+The most common characteristics used in miRNA targets identification are \cite{common_features}:
 \begin{itemize}
 	\item seed region complementarity
 	\item free energy
