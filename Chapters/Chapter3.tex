@@ -14,9 +14,9 @@ In this thesis we aim at using deep learning techniques to investigate the role 
 
 DL has already been applied to the miRNA target prediction problem. Cheng et al. \cite{mirtdl} used convolutional neural networks to analyze matrices of miRNA:site features, but the selected features were still human-crafted descriptors and thus the method faces similar problems as rule-based and ML approaches. A more recent work, DeepTarget \cite{deep_target}, relied on recurrent neural networks to identify potential binding sites and assess their functionality. However this work is still oriented to the identification of canonical sites and relies on a limited small data set for the training phase. Another approach using DL is DeepMirTarSdA \cite{deep_mirtar}, that explore the use of stacked de-noising auto-encoders (SdA) to predict human miRNA-targets at the site level, but the network obtained is huge and the small availability of input data (about 8000 samples between positives and negatives) results in a model that performs well on the data being used but generalizes quite poorly. 
 
-In this thesis we present DeepMiRNA, a miRNA target prediction tool that attempts to take advantage of the learning capacity of a neural network to extract abstract patterns from raw input data. Unfortunately, to the best of our knowledge, there is no suitable raw-data representational method for miRNA-target prediction. This is very likely the consequence of the very small quantity of validated data available for this task. For this reason, rather than making assumption about suitable descriptor, we created a set of rules to help finding the best candidate binding sites leaving the classification decision to the neural network (see CSSM in the next section).
+In this thesis we present DeepMiRNA, a miRNA target prediction tool that attempts to take advantage of the learning capacity of a neural network to extract abstract patterns from raw input data. Unfortunately, to the best of our knowledge, there is no suitable raw-data representational method for miRNA-target prediction. This is very likely the consequence of the very small quantity of validated data available for this task. For this reason, rather than making assumption about suitable descriptor, we created a set of rules to help finding the best candidate binding sites leaving the classification decision to the neural network (see CSSM in the next section). 
 
-More precisely, DeepMiRNA scans the 3'UTR of the gene identifying potential target sites according to the chosen rules. It then uses the previously trained network to identify the relevant patterns by directly examining the whole mature miRNA transcript, rather than focusing on the seed region and analyzing precomputed descriptors.
+More precisely, DeepMiRNA scans the 3'UTR of the gene identifying potential target sites according to the chosen rules. It then uses the previously trained network to identify the relevant patterns by directly examining the whole mature miRNA transcript, rather than focusing on the seed region and analyzing precomputed descriptors. In the following text we denote a miRNA binding site with MBS.
 
 \section{Materials and methods}
 Two of the fundamental properties in deep neural network theory states that:
@@ -38,14 +38,10 @@ The DeepMiRNA working pipeline for the identification of functional targets for 
 \end{figure}
 
 \subsection{Data preprocessing}
-A key factor for successful application of any Machine Learning technique and one of the most important aspect to consider before feeding the network with data is how we prepare the input data and the targets. The main purpose is to have a sufficiently variable and representative dataset that allows the model to generalize well on new and unseen examples. This phase is probably the most important together with the network design as it's crucial for achieving good performances. 
+A key factor for successful application of any Machine Learning technique and one of the most important aspect to consider before feeding the network with data is how we prepare the input data and the targets.  
 
-The two main aspects to consider during this process are the following:
-
-\begin{enumerate} 
-	\item use suitable techniques to make the data more amenable for the NN: this includes vectorization, normalization and handling of missing values. 
-	\item find comprehensive and validated data representative of the classification problem. 
-\end{enumerate} 
+The main aspect to consider during this process is the use of suitable techniques to make the data more amenable for the NN: this includes vectorization, normalization and handling of missing values. 
+	
 
 \subsubsection{vectorization}
 In order to be accepted by the neural network all inputs must be tensors, that is they must be expressed by numerical arrays with suitable shape and dimension. The process to encode categorical data, in our case the transcript sequences, into tensor is called \emph{vectorization}. In this thesis we actually employed two different techniques for this operation: 
@@ -88,7 +84,7 @@ In our case each variable lenght miRNA sequence has been split into 4 different 
 \begin{figure}[hbt!]
 	\centering
 	\includegraphics[width=0.7\textwidth, height=0.3\textheight]{Figures/dna2vec}
-	\caption{\textbf{Dna2Vec mapping example using different length k-mers}}
+	\caption{Dna2Vec mapping example using different length k-mers}
 	\label{fig:dna2vec}
 \end{figure}
 
@@ -96,3 +92,66 @@ In our case each variable lenght miRNA sequence has been split into 4 different 
 Another crucial part of data preprocessing concerns their normalization. In general, it's not safe to feed the network with data that takes relatively large values or that are heterogeneous (i.e have very different values ranges). In our case, however, the vectorization process guarantees that the numerical values resulting from the encoding are both small and homogeneous. Regarding missing or incomplete data, we found a very small quantity  of them in the datasets retrieved, hence we simply decided to discard them.  
 
 \subsection{Dataset preparation}
+One of the biggest challenge to face in any Machine Learning application is to get a good set of significant data.
+The main purpose is to have a sufficiently variable and representative dataset that allows the model to generalize well on new and unseen examples. This phase is probably the most important together with the network design as it's crucial for achieving good performances. It is of fundamental importance that the data is representative for the problem we want to solve. It does not matter how big is the  quantity of data we obtain if that is not aligned with the goal we want to pursue. One should focus on finding data with features that matter to what we’re trying classify or predict and discard unrelated features. Hence, the first step of a classification process should be proper data collection, and until we achieve this, we will find ourselves constantly coming back to this step \cite{imbalanced_datasets}.
+
+For the miRNA target prediction task, this requires a comprehensive dataset of verified positive and negative targets that encompass both canonical and non-canonical examples. While there are multiple data repositories providing information regarding experimentally validated positive miRNA targets\cite{dianatarbase} \cite{mirtarbase} there are significantly fewer experimentally verified negative targets. This represents a major concern for ML-based approaches that require similar numbers of labeled examples for both classes.
+
+In this thesis we only considered human data and we used the version 8 of the Diana TarBase\footnote{\url{http://diana.imis.athena-innovation.gr/DianaTools/index.php}} and the release 7.0 of miR TarBase\footnote{\url{http://mirtarbase.mbc.nctu.edu.tw/php/index.php}} datasets. Moreover, in order to annotate the datasets with lacking informations such as molecules transcripts, we downloaded gene sequences from Ensembl\footnote{\url{https://ensembl.org/index.html}} and miRNA transcripts from miRBase\footnote{\url{http://mirbase.org}} 
+
+\subsubsection{Diana TarBase}
+The Diana TarBase is the most widely used database for validated miRNA interactions. The latest version at time of writing is $v8$ and asking for a bulk download from their website is possible to obtain a dataset of 526658 positive and 63559 negative validated targets. This dataset provides informations about miRNA:mRNA interactions in the form of miRNA name, gene name and functionality as it's illustrated in Table \ref{tab:Diana}. Unfortunately there is no information about transcript sequences of the molecules or binding sites location.
+
+\begin{table}[!t]
+	\caption{Example of Diana TarBase entries.}
+	\label{tab:Diana}
+	\centering
+	\begin{tabular}{l l l}
+		\toprule
+		\tabhead{gene name} & \tabhead{miRNA name} & \tabhead{functionality} \\
+		\midrule
+		AB002442 & hsa-miR-192-5p & POSITIVE\\
+		DAD3R & hsa-miR-34a-5p & NEGATIVE\\
+		E2IG4 & hsa-miR-200c-3p & POSITIVE\\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\subsubsection{Mir TarBase}
+This database contains interactions of about 2000 miRNA and around 20000 genes. In total the downloaded dataset comprises 380091 positive and 382 negative duplexes available from the Download section of the website. It's possible to find it under the name \textit{hsa\_MIT.xlsx}. It's important to note that every single miRNA can interact with hundreds of different genes. Again, exactly as with the Diana TarBase dataset, no sequence or binding sites transcripts are provided.
+ 
+\subsubsection{Ensembl}
+From Ensembl\cite{ensembl} is possible to obtain the transcripts of all human genes. In this thesis we focused on the 3'UTR and for the download we used the BioMart tool available from the main menu. More specifically, from the BioMart webpage we followed these steps:
+\begin{itemize}
+	\item from the drop down menu choose database: \emph{Ensembl Genes 96};
+	\item then choose dataset: \emph{human genes GRCh38.p12};
+	\item from the left-hand side of the page click attributes and select \emph{sequences};
+	\item from this submenu select \emph{3'UTR} and then click on \emph{Header Information};
+	\item now from the header submenu select the following attributes: \emph{Gene stable ID}, \emph{Gene name}, \emph{Transcript stable ID}, \emph{3'UTR start} and \emph{3'UTR end};
+	\item lastly click on \emph{Results} from the top left and export the generated fasta file selecting the box \emph{Unique results only} and pressing \emph{Go}.
+\end{itemize}
+Note that a single gene identified with a unique ID may produce multiple RNA's transcripts each denoted with its own transcript ID. The actual transcript observed will depend on on the tissue, developmental time point, and environmental or hormonal factor. Typically there's a single major transcript expressed in a given cell at a given time, but not always. Unfortunately in both the Diana TarBase and miR TarBase the transcript ID of the miRNA:mRNA pair is not present, hence, according to what is used in \cite{miraw}, we kept for annotation the transcript with the longest sequence.  
+
+\subsubsection{mirBase}
+The mirBase database allowed us to retrieve all known miRNAs transcripts. For the homo sapiens species there currently around 2000 miRNAs sequences and in order to collect them we followed these steps:
+\begin{itemize}
+	\item from the homepage click \emph{Browse} from the top menu;
+	\item click on \emph{human} and a preview of the data will appear on screen as depicted in figure \ref{fig:mirna_preview};
+	\item on the bottom of the page select sequence type \emph{Mature sequence} and output format \emph{Unaligned fasta format};
+	\item press \emph{Select all} and then \emph{Fetch sequences}; 
+	\item the query result will be printed on the next page where it can be copied and pasted to a regular text file and saved as a fasta file.
+\end{itemize}
+ 
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics[width=1\textwidth, height=0.3\textheight]{Figures/mirna_preview}
+	\caption{A sample of the mirBase database.}
+	\label{fig:mirna_preview}
+\end{figure}
+
+As a preliminary step, the Diana and MirTarBase data were parsed to remove inconsistent entries that were marked both as positive and negative targets due to contradictory results in different experimental validations and combine entries that were validated more than once by different verification methods. This produced a final dataset of 646206 positive (+) and 38464 negative (-) miRNA:mRNA interactions containing bindings for about 16000 different genes and around 2000 miRNAs. This data was then split into two equal parts for the training and testing phases. 
+
+\subsection{Training dataset}
+The purpose of the training stage is to train and validate the neural network that has the responsibility for distinguishing between functional (positive) and non-functional (negative) target sites. A positive experimentally validated gene can exhibit tens of potential positive binding sites  but not necessarily  all them are actually functional. Hence, the training set must be composed of miRNA:MBS pairs rather than miRNA:mRNA duplexes. However, the retrieved data, while consistent and in good quantity, do not contain such informations. Searching the Internet we were able to find only 2 publicly available validated datasets providing information regarding experimentally identified miRNA binding site locations: the Helwak \cite{helwak} and the Grosswendt \cite{grosswendt} datasets. 
+
+ 
