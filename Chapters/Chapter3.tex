@@ -8,17 +8,17 @@
 %----------------------------------------------------------------------------------------
 
 \section{Introduction}
-The majority of prediction tools are based on the assumption that it is the miRNA seed region that contains almost all the important interactions between a miRNA and its target and their focus is on these canonical sites.
+The majority of prediction tools are based on the assumption that it is the miRNA seed region that contains almost all the important interactions between a miRNA and its target and their focus are on these canonical sites.
 
-In this thesis we aim at using deep learning techniques to investigate the role of those non-canonical sites and pairing beyond the canonical seed region in miRNA targets. Recent increases in computational power have permitted the rise of methods that can dispense with human-crafted features, making it possible to deal directly with raw data and autonomously learn and identify patterns to appropriately represent it. In particular, deep learning has been shown to be an effective method for classification tasks in domains with complex feature representation \cite{dl}.
+In this thesis, we aim at using deep learning techniques to investigate the role of those non-canonical sites and pairing beyond the canonical seed region in miRNA targets. Recent increases in computational power have permitted the rise of methods that can dispense with human-crafted features, making it possible to deal directly with raw data and autonomously learn and identify patterns to appropriately represent it. In particular, deep learning has been shown to be an effective method for classification tasks in domains with complex feature representation \cite{dl}.
 
-DL has already been applied to the miRNA target prediction problem. Cheng et al. \cite{mirtdl} used convolutional neural networks to analyze matrices of miRNA:site features, but the selected features were still human-crafted descriptors and thus the method faces similar problems as rule-based and ML approaches. A more recent work, DeepTarget \cite{deep_target}, relied on recurrent neural networks to identify potential binding sites and assess their functionality. However this work is still oriented to the identification of canonical sites and relies on a limited small data set for the training phase. Another approach using DL is DeepMirTarSdA \cite{deep_mirtar}, that explore the use of stacked de-noising auto-encoders (SdA) to predict human miRNA-targets at the site level, but the network obtained is huge and the small availability of input data (about 8000 samples between positives and negatives) results in a model that performs well on the data being used but generalizes quite poorly. 
+Deep Learning (DL) has already been applied to the miRNA target prediction problem. Cheng et al. \cite{mirtdl} used convolutional neural networks to analyze matrices of miRNA:site features, but the selected features were still human-crafted descriptors and thus the method faces similar problems as rule-based and ML approaches. A more recent work, DeepTarget \cite{deep_target}, relied on recurrent neural networks to identify potential binding sites and assess their functionality. However this work is still oriented to the identification of canonical sites and relies on a limited small data set for the training phase. Another approach using DL is DeepMirTarSdA \cite{deep_mirtar}, that explore the use of stacked de-noising auto-encoders (SdA) to predict human miRNA-targets at the site level, but the network obtained is huge and the small availability of input data (about 8000 samples between positives and negatives) results in a model that performs well on the data being used but generalizes quite poorly. 
 
 In this thesis we present DeepMiRNA, a miRNA target prediction tool that attempts to take advantage of the learning capacity of a neural network to extract abstract patterns from raw input data. Unfortunately, to the best of our knowledge, there is no suitable raw-data representational method for miRNA-target prediction. This is very likely the consequence of the very small quantity of validated data available for this task. For this reason, rather than making assumption about suitable descriptor, we created a set of rules to help finding the best candidate binding sites leaving the classification decision to the neural network (see CSSM in the next section). 
 
 More precisely, DeepMiRNA scans the 3'UTR of the gene identifying potential target sites according to the chosen rules. It then uses the previously trained network to identify the relevant patterns by directly examining the whole mature miRNA transcript, rather than focusing on the seed region and analyzing precomputed descriptors. In the following text we denote a miRNA binding site with MBS.
 
-\section{Materials and methods}
+\section{Preparing for training}
 Two of the fundamental properties in deep neural network theory states that:
 
 \begin{enumerate}
@@ -70,7 +70,7 @@ One hot encoding is a process by which categorical data such as strings are conv
 	\end{tabular}
 \end{table}
 
-The main problem using this method is that not all duplexes have the same size. This is in particular due to the different miRNA's transcript length (ranges from 18 to 30), The network, instead, requires that all inputs have the same shape. Hence, in order to meet this requirement, any miRNA sequence is padded with 'empty' letters to reach the maximum size (in this case 30). Regarding the site transcript, each fragment has size 40: 30 corresponding to the window size plus 5 additional nucleotides upstream and downstream. These additional nucleotides seek to capture any influence that the flanking sequence may exert on the target \cite{conserved_pairing}. With these adjustments each duplex is represented by a binary vector of (fixed) size 280.
+The main problem using this method is that not all duplexes have the same size. This is in particular due to the different miRNA's transcript length (ranges from 18 to 30), The network, instead, requires that all inputs have the same shape. Hence, in order to meet this requirement, every miRNA sequence, when needed, has been padded with 'empty' letters to reach the maximum size length (in this case 30). Regarding the site transcript, each fragment has size 40: 30 corresponding to the window size plus 5 additional nucleotides upstream and downstream. These additional nucleotides seek to capture any influence that the flanking sequence may exert on the target \cite{conserved_pairing}. With these adjustments each duplex is represented by a binary vector of (fixed) size 280.
 
 The second vectorization method uses a Word2Vec approach. Word2Vec \cite{word2vec} is a Natural Language Processing (NLP) methodology to map words into numeric vectors based on their context. Being the context defined as the words surrounding the word to encode. For DNA sequences, however, there is no clear definition for words, so usually a k-mer (that is a set of $k$ continuous nucleotides)is used to define a word (see Figure \ref{fig:dna2vec}). Therefore, in case of biological sequences the context is defined as the set of $n$ adjacent k-mers (being $n$ a parameter to validate). For this thesis use the software available at \url{https://github.com/pnpnpn/dna2vec} to train the model used to encode the k-mers. This encoding has two important advantages compared to one hot encoding:
 
@@ -130,7 +130,7 @@ From Ensembl\cite{ensembl} is possible to obtain the transcripts of all human ge
 	\item now from the header submenu select the following attributes: \emph{Gene stable ID}, \emph{Gene name}, \emph{Transcript stable ID}, \emph{3'UTR start} and \emph{3'UTR end};
 	\item lastly click on \emph{Results} from the top left and export the generated fasta file selecting the box \emph{Unique results only} and pressing \emph{Go}.
 \end{itemize}
-Note that a single gene identified with a unique ID may produce multiple RNA's transcripts each denoted with its own transcript ID. The actual transcript observed will depend on on the tissue, developmental time point, and environmental or hormonal factor. Typically there's a single major transcript expressed in a given cell at a given time, but not always. Unfortunately in both the Diana TarBase and miR TarBase the transcript ID of the miRNA:mRNA pair is not present, hence, according to what is used in \cite{miraw}, we kept for annotation the transcript with the longest sequence.  
+Note that a single gene identified with a unique ID may produce multiple RNA's transcripts each denoted with its own transcript ID. The actual transcript observed will depend on on the tissue, developmental time point, and environmental or hormonal factor. Typically there's a single major transcript expressed in a given cell at a given time, but not always. Unfortunately in both the Diana TarBase and miR TarBase the transcript ID of the miRNA:mRNA pair is not present, hence, according to what is used in \cite{deep_mirtar}, we kept the transcript with the longest sequence.  
 
 \subsubsection{mirBase}
 The mirBase database allowed us to retrieve all known miRNAs transcripts. For the homo sapiens species there currently around 2000 miRNAs sequences and in order to collect them we followed these steps:
@@ -149,9 +149,79 @@ The mirBase database allowed us to retrieve all known miRNAs transcripts. For th
 	\label{fig:mirna_preview}
 \end{figure}
 
-As a preliminary step, the Diana and MirTarBase data were parsed to remove inconsistent entries that were marked both as positive and negative targets due to contradictory results in different experimental validations and combine entries that were validated more than once by different verification methods. This produced a final dataset of 646206 positive (+) and 38464 negative (-) miRNA:mRNA interactions containing bindings for about 16000 different genes and around 2000 miRNAs. This data was then split into two equal parts for the training and testing phases. 
+As a preliminary step, the Diana and Mir TarBase data were parsed to remove inconsistent entries that were marked both as positive and negative targets due to contradictory results in different experimental validations and combine entries that were validated more than once by different verification methods. This produced a final dataset of 646206 positive (+) and 38464 negative (-) miRNA:mRNA interactions containing bindings for about 16000 different genes and around 2000 miRNAs. This data was then split into two equal parts for the training and testing phases. 
 
 \subsection{Training dataset}
-The purpose of the training stage is to train and validate the neural network that has the responsibility for distinguishing between functional (positive) and non-functional (negative) target sites. A positive experimentally validated gene can exhibit tens of potential positive binding sites  but not necessarily  all them are actually functional. Hence, the training set must be composed of miRNA:MBS pairs rather than miRNA:mRNA duplexes. However, the retrieved data, while consistent and in good quantity, do not contain such informations. Searching the Internet we were able to find only 2 publicly available validated datasets providing information regarding experimentally identified miRNA binding site locations: the Helwak \cite{helwak} and the Grosswendt \cite{grosswendt} datasets. 
+The purpose of this stage is to train and validate the neural network that has the responsibility for distinguishing between functional (positive) and non-functional (negative) target sites. A positive experimentally validated gene can exhibit tens of potential positive binding sites  but not necessarily  all them are actually functional. Hence, the training set must be composed of miRNA:MBS pairs rather than miRNA:mRNA duplexes. However, the retrieved data, while consistent and sufficiently various, do not contain such informations. Searching the Internet we were able to find only 2 publicly available validated datasets providing information regarding experimentally identified miRNA binding site locations: the Helwak \cite{helwak} and the Grosswendt \cite{grosswendt} datasets. 
 
- 
+\subsubsection{Positive binding sites}
+The two above datasets contain miRNA:MBS locations obtained through PAR-Clip \cite{parclip}  and CLASH \cite{clash}  experiments, however the binding site identified might not be functional. Hence, in order to consider a site as positive we cross-reference them with the Diana TarBase and miR TarBase. In particular we considered a given duplex miRNA:MBS as functional if:
+\begin{itemize}
+	\item form a stable bond, that is it has a free energy below a predetermined threshold accoriding to Vienna Cofold. The threshold used was $-10$ $kcal/mol$.+
+	\item correspond to a miRNA:gene pair marked as functional in either the Diana or the miR dataset.
+\end{itemize} 
+This process produced a total of 33142 positive miRNA:MBS duplexes for the training stage.
+
+\subsubsection{Negative binding sites}
+The small number of non-functional experimentally validated binding sites makes 
+the construction of a representative negative dataset a very difficult task. Some of the examined existing tools overcome this issue by creating 'mock' targets \cite{mirmark} continuously shuffling the sequence of a real functional binding site until the resulting transcript does not appear in any positive miRNA target repository. This method, however, may lead the neural network to learn the function used to create the negative examples resulting in a model trained to discriminate between artificial and real data rather than discerning functional targets from non-functional. Besides, there is no guarantee that the generated sequence is indeed a true negative because it has not been experimentally validated.
+
+The solution we implemented opted for using the validated miRNA:mRNA pairs to extract the negative binding sites and add them the ones provided by the CLASH and CLIP experiments. The idea is that any sequence of approximately 30 nucleotides in the mRNA of a negatively validated miRNA:mRNA pair may represent a potential negative target site. However, in order to avoid the introduction of noise including such sequences, we decided to keep only subsequences of mRNA where the associated miRNA has the potential to form a stable bond. In order to check this requirement we used a sliding window of 30 nt along the entire 3'UTR region. For each negative miRNA:mRNA pair we kept only  MBS with the a binding energy below a certain threshold, chosen according to RNACoFold tool from the ViennaRNA package \cite{vienna_rna}. This process resulted in 32284 negative target sites. 
+
+\subsubsection{Training stage}
+Once the positive and the negative datasets have been completed we shuffled and merged them to create a unique dataset. The whole process of creation of the training set is illustrated in figure \ref{fig:training}. In order to train and validate the network we used an 8 fold cross-validation approach keeping 66\% of the data for training and the rest for validation and test set. During this split we made sure to exclude miRNA:MBS pairs that shared miRNA and MBS with data instances in the training dataset.
+
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics[width=1\textwidth]{Figures/training}
+	\caption{The datasets generation process.}
+	\label{fig:training}
+\end{figure}
+
+\section{The testing stage}
+there is a big difference regarding the procedure adopted for the testing stage. Here the purpose is to predict if a given miRNA targets a certain gene, hence the testing data consists of pairs containing the miRNA and the whole 3'UTR transcript, rather than a specific MBS. This step is essential to be able to evaluate the whole pipeline process of DeepMiRNA.
+
+\subsection{Test dataset}
+To correctly evaluate the network performance we used the experimentally verified miRNA:mRNA pairs excluded from the training set. \dots 
+
+\subsection{Candidate site selection methods: CSSM}
+Often, in the academic world, people tend to affirm that in order to properly train a neural network one needs to have a huge amount of data available. While we partially disagree with this common belief, convinced that quality and variety prevail over quantity, we still agree that in the case of miRNA targets prediction the available experimentally validated data is still not fully representative of the task and the candidate site selection step effectively narrows the search space to simplify the NN classification task.
+For this reason, the selection of candidate sites in a mRNA becomes a key step for a miRNA target sites predictor because it helps identifying which regions within the mRNA have the potential to accommodate a binding site. We found out that most of the publicly available algorithms follow a similar approach: they scan the gene's 3'UTR  looking for sites that are partially complementary to the miRNA transcript; if a site meets certain criteria, it is considered to be a candidate site and is subjected to further analysis.
+
+In the light of new recent results stating that functional miRNA targets can arise either by a single strong binding site (i.e. 6 consecutive complementary nucleotides) or by multiple weak binding sites \cite{helwak}, we believe it's essential to consider the whole 3'UTR sequence using CSSM willing to accept both canonical and non-canonical sites. These methods are less conservative and allow accepting bulges, mismatches or wobble pairs in the seed region (see figure \ref{fig:canonical}).
+
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics[width=1\textwidth]{Figures/canonical}
+	\caption{Example of canonical and non-canonical sites used in three available tools: Pita, TargetScan and miRAW.}
+	\label{fig:canonical}
+\end{figure}
+
+The CSSM adopted in DeepMiRNA use a very similar approach to miRAW \cite{miraw}: we consider a 30-nucleotide window to scan the 3'UTR and we extend the typical 7mer seed region (figure \ref{fig:canonical}a) considering the first 10 nucleotides of the miRNA transcript (figure \ref{fig:canonical}d) to look for partial complementarity.
+
+In particular, we consider a site to be a potential candidate site if there is a minimum number of base pairs, both Watson-Crick and Wobble, within the extended seed region. In this thesis we investigated two different configurations: 
+
+\begin{enumerate}
+	\item CSS-6.10: a candidate site must contain at least 6 base pairs between the extended seed region;
+	\item CSS-7.10: a candidate site must contain at least 7 base pairs between the extended seed region.
+\end{enumerate}
+
+In each case, base pairs do not need to be consecutive in order to accommodate the presence of gaps and bulges. The task of finding non-consecutive complementary nucleotides can be mapped to the problem of finding the longest common subsequence (LCS ) between two strings as illustrated in figure \ref{fig:lcs}.
+
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics[width=1\textwidth]{Figures/lcs}
+	\caption{Mapping partial non-consecutive complementarity to longest common subsequence search.}
+	\label{fig:lcs}
+\end{figure}
+
+Those configurations accept both standard canonical MBSs as well as a broader
+range of non-canonical target site structures including the vast majority of experimentally validated sites from Diana TarBase and CLIP/CLASH binding site
+datasets. Moreover, while these relaxed conditions for the seed region generate a much larger number of candidate sites and potentially an increased quantity of false positives, the decision of whether a site represents a functional target is delegated to the neural network. This way, we ensure that minimal assumptions, and hence bias, are incorporated into the analysis.
+
+\subsection{Filtering predictions}
+In chapter \ref{Chapter2} we highlight the importance of 
+
+
+
+
