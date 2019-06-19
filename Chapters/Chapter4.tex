@@ -5,6 +5,24 @@
 \label{Chapter4} % For referencing the chapter elsewhere, use \ref{Chapter4} 
 
 %----------------------------------------------------------------------------------------
+\section{External libraries}
+DeepMiRNA has been developed using \emph{Python3}.
 
-\section{Choose the right model}
-Building deep learning applications in the real world is a never-ending process of selecting and refining the right elements of a specific solution. Among those elements, the selection of the correct model and the right structure of the training dataset are, arguably, the two most important decisions that data scientists need to make when architecting deep learning solutions. How to decide what deep learning model to use for a specific problem? How do we know whether we are using the correct training dataset or we should gather more data? Those questions are the common denominator across all stages of the lifecycle of a deep learning application. Even though there is no magic answer to those questions, there are several ideas that could guide your decision making process
+\section{Choosing the right model}
+Building deep learning applications in the real world is a never-ending process of selecting and refining the right elements of a specific solution. Among those elements, the selection of the correct model and the right structure of the training dataset are, arguably, the two most important decisions that any data scientist needs to make when designing deep learning solutions. How to decide what deep learning model to use for a specific problem? How do we know whether we are using the correct training dataset or we should gather more data? Those questions are the common denominator across all stages of the life cycle of a deep learning application. Even though there is no magic answer to those questions, there are several ideas that could guide the decision process. 
+
+First of all we need to start identifying the correct baseline model, in particular we should select what type of networks suits more the input dataset. In the case of miRNA targets predictions the topological structure of the available data are strictly correlated to the vectorization method selected. If we opt for the one-hot encoding that maps duplexes into fixed-size vectors, we should be thinking of using a feed-forward network with inter layer connectivity. While, if we select the Dna2Vec approach that transforms each duplex into a matrix, then the problem could be tackled using convolutional neural networks (CNN)\cite{dl}.  
+
+The second part concerns the selection of the optimization algorithm to use. The most popular are, arguably, SGD (Stochastic Gradient Descent) and its variation using momentum or learning decay, and Adam. The latter, in particular, is very often used combined with CNNs.
+
+As mentioned in chapter \ref{Chapter3} DeepMiRNA uses 2 different neural network for the training stage: a regular feed-forward network for the one-hot encoded sequences and a CNN for the Dna2Vec encoded duplexes. For both networks we used the Adam optimizer with the following parameters:
+
+\begin{itemize}
+	\item learning rate = 0.002;
+	\item beta\_1 = 0.9;
+	\item beta\_2 = 0.999;
+	\item epsilon = $1e-8$;
+	\item decay = 0
+\end{itemize}
+
+\subsection{}   

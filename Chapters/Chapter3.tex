@@ -152,6 +152,8 @@ The mirBase database allowed us to retrieve all known miRNAs transcripts. For th
 As a preliminary step, the Diana and Mir TarBase data were parsed to remove inconsistent entries that were marked both as positive and negative targets due to contradictory results in different experimental validations and combine entries that were validated more than once by different verification methods. This produced a final dataset of 646206 positive (+) and 38464 negative (-) miRNA:mRNA interactions containing bindings for about 16000 different genes and around 2000 miRNAs. This data was then split into two equal parts for the training and testing phases. 
 
 \subsection{Training dataset}
+Structuring a proper training dataset is an essential aspect of effective deep learning models but one that is particularly hard to solve. Part of the challenge comes from the intrinsic relationship between a model and the corresponding training dataset. If the performance of a model is below expectations, it is often hard to determine whether the causes are related to the model itself or to the composition of the training dataset.
+
 The purpose of this stage is to train and validate the neural network that has the responsibility for distinguishing between functional (positive) and non-functional (negative) target sites. A positive experimentally validated gene can exhibit tens of potential positive binding sites  but not necessarily  all them are actually functional. Hence, the training set must be composed of miRNA:MBS pairs rather than miRNA:mRNA duplexes. However, the retrieved data, while consistent and sufficiently various, do not contain such informations. Searching the Internet we were able to find only 2 publicly available validated datasets providing information regarding experimentally identified miRNA binding site locations: the Helwak \cite{helwak} and the Grosswendt \cite{grosswendt} datasets. 
 
 \subsubsection{Positive binding sites}
@@ -169,7 +171,7 @@ the construction of a representative negative dataset a very difficult task. Som
 The solution we implemented opted for using the validated miRNA:mRNA pairs to extract the negative binding sites and add them the ones provided by the CLASH and CLIP experiments. The idea is that any sequence of approximately 30 nucleotides in the mRNA of a negatively validated miRNA:mRNA pair may represent a potential negative target site. However, in order to avoid the introduction of noise including such sequences, we decided to keep only subsequences of mRNA where the associated miRNA has the potential to form a stable bond. In order to check this requirement we used a sliding window of 30 nt along the entire 3'UTR region. For each negative miRNA:mRNA pair we kept only  MBS with the a binding energy below a certain threshold, chosen according to RNACoFold tool from the ViennaRNA package \cite{vienna_rna}. This process resulted in 32284 negative target sites. 
 
 \subsubsection{Training stage}
-Once the positive and the negative datasets have been completed we shuffled and merged them to create a unique dataset. The whole process of creation of the training set is illustrated in figure \ref{fig:training}. In order to train and validate the network we used an 8 fold cross-validation approach keeping 66\% of the data for training and the rest for validation and test set. During this split we made sure to exclude miRNA:MBS pairs that shared miRNA and MBS with data instances in the training dataset.
+Once the positive and the negative datasets have been created, we shuffled and merged them to create a unique dataset. The whole process of creation of the training set is illustrated in figure \ref{fig:training}. In order to train and validate the network we used an 8 fold cross-validation approach keeping 66\% of the data for training and the rest for validation and test set. During this split we made sure to exclude miRNA:MBS pairs that shared miRNA and MBS with data instances in the training dataset.
 
 \begin{figure}[hbt!]
 	\centering
@@ -179,16 +181,14 @@ Once the positive and the negative datasets have been completed we shuffled and 
 \end{figure}
 
 \section{The testing stage}
-there is a big difference regarding the procedure adopted for the testing stage. Here the purpose is to predict if a given miRNA targets a certain gene, hence the testing data consists of pairs containing the miRNA and the whole 3'UTR transcript, rather than a specific MBS. This step is essential to be able to evaluate the whole pipeline process of DeepMiRNA.
-
-\subsection{Test dataset}
-To correctly evaluate the network performance we used the experimentally verified miRNA:mRNA pairs excluded from the training set. \dots 
+There is a big difference regarding the procedure adopted for the testing stage compared to the training phase. Here the purpose is to predict if a given miRNA targets a certain gene, hence the testing data consists of pairs containing the miRNA and the whole 3'UTR transcript, rather than a specific MBS. This step is essential to be able to evaluate the whole pipeline process of DeepMiRNA. To correctly evaluate the network performance we used the experimentally verified miRNA:mRNA pairs excluded from the training set. We now describe all the steps involved in the test stage. 
 
 \subsection{Candidate site selection methods: CSSM}
-Often, in the academic world, people tend to affirm that in order to properly train a neural network one needs to have a huge amount of data available. While we partially disagree with this common belief, convinced that quality and variety prevail over quantity, we still agree that in the case of miRNA targets prediction the available experimentally validated data is still not fully representative of the task and the candidate site selection step effectively narrows the search space to simplify the NN classification task.
+Often, in the academic world, people tend to affirm that, in order to properly train a neural network, one needs to have a huge amount of data available. While we partially disagree with this common belief, convinced that quality and variety prevail over quantity, we still agree that in the case of miRNA targets prediction the available experimentally validated data is still not sufficiently representative of the task and the candidate site selection step effectively narrows the search space to simplify the NN classification task.
+
 For this reason, the selection of candidate sites in a mRNA becomes a key step for a miRNA target sites predictor because it helps identifying which regions within the mRNA have the potential to accommodate a binding site. We found out that most of the publicly available algorithms follow a similar approach: they scan the gene's 3'UTR  looking for sites that are partially complementary to the miRNA transcript; if a site meets certain criteria, it is considered to be a candidate site and is subjected to further analysis.
 
-In the light of new recent results stating that functional miRNA targets can arise either by a single strong binding site (i.e. 6 consecutive complementary nucleotides) or by multiple weak binding sites \cite{helwak}, we believe it's essential to consider the whole 3'UTR sequence using CSSM willing to accept both canonical and non-canonical sites. These methods are less conservative and allow accepting bulges, mismatches or wobble pairs in the seed region (see figure \ref{fig:canonical}).
+In the light of new recent results, stating that functional miRNA targets can arise either by a single strong binding site (i.e. 6 consecutive complementary nucleotides) or by multiple weak binding sites \cite{helwak}, we believe it's essential to consider the whole 3'UTR sequence using CSSM willing to accept both canonical and non-canonical sites. These methods are less conservative and allow accepting bulges, mismatches or wobble pairs in the seed region (see figure \ref{fig:canonical}).
 
 \begin{figure}[hbt!]
 	\centering
@@ -217,10 +217,34 @@ In each case, base pairs do not need to be consecutive in order to accommodate t
 
 Those configurations accept both standard canonical MBSs as well as a broader
 range of non-canonical target site structures including the vast majority of experimentally validated sites from Diana TarBase and CLIP/CLASH binding site
-datasets. Moreover, while these relaxed conditions for the seed region generate a much larger number of candidate sites and potentially an increased quantity of false positives, the decision of whether a site represents a functional target is delegated to the neural network. This way, we ensure that minimal assumptions, and hence bias, are incorporated into the analysis.
+datasets. Moreover, while these relaxed conditions for the seed region generate a much larger number of candidate sites and potentially an increased quantity of false positives, the decision of whether a site represents a functional target is delegated to the neural network. This way, we ensure that minimal assumptions, and hence bias, are incorporated into the analysis. 
 
 \subsection{Filtering predictions}
-In chapter \ref{Chapter2} we highlight the importance of 
+In chapter \ref{Chapter2} we highlighted the importance of site accessibility for miRNA targets prediction. In fact, many studies \cite{helwak} \cite{common_features} have proved genes accommodate site accessibility by preferentially positioning targets in highly accessible regions \cite{accessibility_nrg_role} thus demonstrating that target accessibility is a critical factor in miRNA function.
+
+Moreover, the use of a greedier CSSM approach gives rise to an increase on the number of potential candidate sites for each miRNA:mRNA duplex. For example, on average, where a strict canonical approach identifies $\approx$ 3-4 sites per duplex, the CSS-6:10 identifies approximately 32 MBSs while the CSS-7:10 about 21. As a consequence the chance of obtaining more false positives is very likely to increase.  
+
+Furthermore, the neural network itself may not be able to completely discern false from true positive duplexes. This is due, in particular, to two main factors: first of all the number of validated negative MBSs is extremely low; in fact, despite having  a good number of negatively validates miRNA:mRNA pairs, we only have a small quantity of negatively validated binding sites. Thus, we had to artificially select the negative sites for the training stage as explained in the previous section. Second, functional and non-functional sites are very similar in terms of complementarity with the pairing miRNA and, hence, we believe it's important to also consider the characteristics of the secondary structure of the duplex to improve the accuracy of the prediction and reduce the number of false positives.
+
+To this purpose, we investigated the possibility of using an a-posteriori filter that considers the secondary structure and compute the site accessibility of the target site. The site accessibility has been computed as follows:
+\begin{itemize}
+	\item for each potential site identified using the CSSM, we considered the region of 200 nucleotides surrounding the MBS and we call it \emph{folding chunk}. For example, if the MBS has length 30 and comprises the region between nucleotide 100 and 129, we consider for the computation of the site accessibility the region between nucleotide 15 and 214. If either on the left or on the right-hand side of the MBS there were not enough nucleotides we considered a shorter fold;
+	\item the free energy $\Delta G_{free}$ of the folding region is computed, using Vienna Cofold, to check the amount of energy released during the reaction;
+	\item next we computed the opening energy $\Delta G_{open}$, that is the energy needed to unfold the mRNA and allow the miRNA binding;
+	\item the site accessibility energy $\Delta\Delta G$ is given by the difference between the free energy released with the binding and the opening energy (see figure \ref{fig:site_accessibility}). The bigger the value the more accessible the site:
+	$$\Delta\Delta G = \Delta G_{free} - \Delta G_{open}$$ 
+\end{itemize}    
+
+In order to use this feature as a filter we set a site accessibility threshold meaning that sites with a low value are discarded while only MBS with a site accessibility greater than the threshold are considered as functional. 
+
+One may wonder why we used this feature as an a-posteriori filter rather than using it as another candidate selection rule. While the final result is the same, computing the secondary structure of a folding chunk, and hence its accessibility, is a pretty difficult task involving a lot more computation than asking the network for a prediction. Thus, we decided to use this feature as the last pipeline step.
+
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics[width=1\textwidth]{Figures/site_accessibility}
+	\caption{Illustration of site accessibility energy for miRNA:MBS interactions.}
+	\label{fig:site_accessibility}
+\end{figure}
 
 
 
