@@ -21,11 +21,17 @@ The second part concerns the selection of the optimization algorithm to use. The
 
 As mentioned in chapter \ref{Chapter3} DeepMiRNA uses 2 different neural network for the training stage according to the chosen data representation: a regular feed-forward network for the one-hot encoded sequences and a CNN for the Dna2Vec encoded duplexes. 
 
-\subsection{The feed-forward network} 
-The feed-forward network is a very simple neural network consisting in 5 dense hidden layers, comprising rectifier activation function ReLU nodes, each followed by a dropout layer. Dropout\cite{dropout} is a regularization technique used to prevent overfitting. In this thesis, the dropout rate has been set to $0.8$ meaning that $20\%$ of the neurons in each layer are ignored (i.e set to 0). Basically this implies that their contribution to the activation of downstream (i.e. next layer) neurons  is temporally removed on the forward pass and weight update is not applied on the backward pass.   
+\section{The feed-forward network} 
+The feed-forward network we designed for the miRNA target prediction task is a very simple neural network consisting of 5 dense hidden layers, comprising rectifier activation function ReLU nodes, each followed by a dropout layer. Dropout \cite{dropout} is a regularization technique used to prevent overfitting. In this thesis, the dropout rate has been set to $0.7$ meaning that there is a probability $p = 0.3$ that a certain neuron is ignored (i.e set to 0). Basically this implies that their contribution to the activation of downstream (i.e. next layer) neurons  is temporally removed on the forward pass and weight update is not applied on the backward pass (see figure \ref{fig:dropout}).
 
-The reason why this process can be useful is that, while a neural network learns, neuron weights settle into their context within the network. Those weights are tuned for specific features providing some specialization. Neighboring neurons become to rely on this specialization, which, if taken too far, can result in a fragile model too specialized on the training data.Hence, if neurons are randomly dropped out of the network during training, other neurons will have to step in and handle the representation required to make predictions for the missing neurons. This is believed to result in multiple independent internal representations being learned by the network.
-The effect is that the network becomes less sensitive to the specific weights of neurons and results in a model capable of better generalization and less likely to overfit the training data.    
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics[width=\textwidth, height=0.3\textheight]{Figures/dropout}
+	\caption{Left: neural network before dropout. Right: neural network after dropout.}
+	\label{fig:dropout}
+\end{figure}   
+
+While a neural network learns, neuron weights settle into their context within the network. Those weights are tuned for specific features providing some specialization. However, neighboring neurons become to rely on this specialization, which, if taken too far, can result in a fragile model too specialized on the training data. Hence, if neurons are randomly dropped out of the network during training, other neurons will have to step in and handle the representation required to make predictions for the missing neurons. This is believed to result in multiple independent internal representations being learned by the network. The effect is that the network becomes less sensitive to the specific weights of neurons and results in a model capable of better generalization and less likely to overfit the training data.    
 
 The output layer is composed of one sigmoid node that returns a value between 0 and 1 corresponding to the final score prediction. The resulting architecture can be visualized in figure \ref{fig:NN}.
 
@@ -35,7 +41,6 @@ The output layer is composed of one sigmoid node that returns a value between 0 
 	\caption{\textbf{The Neural Netkork}. The first hidden layer increases the dimensionality of the input allowing the representation of data in a more complex feature space. There is debate in the machine learning community regarding the need of such over-completion layers, as they do not necessarily improve the accuracy whilst making the learning process slower. Considering that the relatively low number of inputs of the proposed network allows a fast training procedure, we opted to include this higher dimension layer to give the network the chance of identifying more complex patterns.}
 	\label{fig:NN}
 \end{figure}
- 
 
 As optimization function we chose the Adam optimizer with the following parameters:
 
@@ -46,3 +51,25 @@ As optimization function we chose the Adam optimizer with the following paramete
 	\item epsilon = $1e-8$;
 	\item decay = 0
 \end{itemize}
+
+Despite being a very simple model, this network showed a better performances on the test set compared to other deeper (that is with more hidden layers) or bigger (i.e with a greater number of nodes) models. Check chapter \ref{Chapter5} for further details on the results.
+
+\section{The Convolutional Neural Network aka CNN}
+We have explained earlier, that the second encoding function provided by DeepMiRNA is based on Dna2Vec \cite{dna_distributed_repr}. In computational biology, one of the ubiquitous representation of long DNA sequence is dividing it into shorter k-mer components.  Unfortunately, the straightforward vectorization of k-mer as a one-hot vector is vulnerable to the curse of dimensionality. Worse yet, the distance between any pair of one-hot vectors is equidistant, even though, for example, the sequence \emph{ATGGC} should be closer to \emph{ATGGG} than \emph{CACGA}. This might be particularly problematic when applying the latest machine learning algorithms to solve problems in biological sequence analysis. Dna2Vec is, thus, a distributed representation of biological sequences that allows mapping k-mers to vectors of real numbers. By splitting the miRNA:MBS duplex in a fixed number of variable length k-mers, we were able to encode each pair into a bi-dimensional matrix. 
+
+More specifically, each k-mer is embedded into a continuous vector space of $100$ dimensions, and each duplex is divided into 9 variable length k-mers: concatenating these vectors we obtain a $9x100$ matrix representing the encoded sequence (see figure \ref{fig:dna_embedding}).
+
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics[width=\textwidth, height=0.4\textheight]{Figures/dna_embedding}
+	\caption{\textbf{Sequence Embedding.} In green the miRNA sequence is split into 4 k-mers each mapped in a 100-dimension vector. In blue the same is done with miRNA binding site which is divided into 5 k-mers. The concatenation of the 9 resulting vectors is the matrix distributed representation of the duplex.}
+	\label{fig:dna_embedding}
+\end{figure}
+
+With this representation, we believe the best base model to use for our task is represented by a convolutional neural network. 
+
+\subsection{CNN architecture}
+
+
+  
+

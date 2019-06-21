@@ -181,7 +181,9 @@ Once the positive and the negative datasets have been created, we shuffled and m
 \end{figure}
 
 \section{The testing stage}
-There is a big difference regarding the procedure adopted for the testing stage compared to the training phase. Here the purpose is to predict if a given miRNA targets a certain gene, hence the testing data consists of pairs containing the miRNA and the whole 3'UTR transcript, rather than a specific MBS. This step is essential to be able to evaluate the whole pipeline process of DeepMiRNA. To correctly evaluate the network performance we used the experimentally verified miRNA:mRNA pairs excluded from the training set. We now describe all the steps involved in the test stage. 
+There is a big difference regarding the procedure adopted for the testing stage compared to the training phase. Here the purpose is to predict if a given miRNA targets a certain gene, hence the testing data consists of pairs containing the miRNA and the whole 3'UTR transcript, rather than a specific MBS. This step is essential to be able to evaluate the whole pipeline process of DeepMiRNA. 
+
+To correctly evaluate the network performance we used the experimentally verified miRNA:mRNA pairs excluded from the training set. We now describe all the steps involved in the test stage. 
 
 \subsection{Candidate site selection methods: CSSM}
 Often, in the academic world, people tend to affirm that, in order to properly train a neural network, one needs to have a huge amount of data available. While we partially disagree with this common belief, convinced that quality and variety prevail over quantity, we still agree that in the case of miRNA targets prediction the available experimentally validated data is still not sufficiently representative of the task and the candidate site selection step effectively narrows the search space to simplify the NN classification task.
@@ -218,6 +220,31 @@ In each case, base pairs do not need to be consecutive in order to accommodate t
 Those configurations accept both standard canonical MBSs as well as a broader
 range of non-canonical target site structures including the vast majority of experimentally validated sites from Diana TarBase and CLIP/CLASH binding site
 datasets. Moreover, while these relaxed conditions for the seed region generate a much larger number of candidate sites and potentially an increased quantity of false positives, the decision of whether a site represents a functional target is delegated to the neural network. This way, we ensure that minimal assumptions, and hence bias, are incorporated into the analysis. 
+
+\subsection{Longest Common Subsequence implementation}
+The computational cost of the testing stage is considerably higher than that of the  training phase. The reasons lie mainly in the computation of the potential candidate sites, involving check of complementarity and calculation of the minimum free energy, and the cost of the filtering stage (see next section).    
+While there is very little to do with the calculation of the interaction energy of the duplexes, which completely relies on the Vienna Cofold library, for the complementarity check we tried different approaches to reduce the computational cost.
+
+As mentioned above the seek of non-consecutive complementary nucleotides between two sequences can be seen as a special case of the problem of finding the longest common subsequence (LCS) between two strings. 
+
+The LCS version we implemented in this thesis is done using \emph{Cython}\cite{cython}. Cython is a programming language that can be seen as a superset of Python that aims to give C-like performances with code that is mostly written using native Python. 
+
+In fact, Cython actually works by producing Python modules where the code, however, is first translated and compiled into C.
+
+For this reason, Cython code must, unlike Python, be compiled. This usually happens in two stages: 
+
+\begin{itemize}
+	\item a \emph{.pyx} file is compiled by Cython into a \emph{.c} file;
+	\item the \emph{.c} file is then compiled to a \emph{.so} file which can be imported and used directly in any Python session. 
+\end{itemize}   
+
+The algorithm we implemented uses dynamic programming and has a worst case cost of $\mathcal{O}(n \times m)$ where $n$ and $m$ are the sequences lengths. The main difference between the classical implementation, that works by thoroughly filling a $n \times m$ table and eventually uses  backtracking to recover the final result, and our approach, consists in how we handle the table construction. In fact, unlike the original implementation, we update the table only when a match is found, thus reducing the whole computational cost. 
+
+However, for our task, we found out that the number of updates required is, in average, around the 70\% of the table size. This is most likely due to the reduced alphabet size (four letters) of the sequences. For this reason the total cost of the function is comparable with the regular implementation.
+
+In average the Cython version of the algorithm is 20 times faster than the original Python implementation and this justifies its use in the DeepMiRNA pipeline.
+
+      
 
 \subsection{Filtering predictions}
 In chapter \ref{Chapter2} we highlighted the importance of site accessibility for miRNA targets prediction. In fact, many studies \cite{helwak} \cite{common_features} have proved genes accommodate site accessibility by preferentially positioning targets in highly accessible regions \cite{accessibility_nrg_role} thus demonstrating that target accessibility is a critical factor in miRNA function.
