@@ -72,7 +72,9 @@ One hot encoding is a process by which categorical data such as strings are conv
 
 The main problem using this method is that not all duplexes have the same size. This is in particular due to the different miRNA's transcript length (ranges from 18 to 30), The network, instead, requires that all inputs have the same shape. Hence, in order to meet this requirement, every miRNA sequence, when needed, has been padded with 'empty' letters to reach the maximum size length (in this case 30). Regarding the site transcript, each fragment has size 40: 30 corresponding to the window size plus 5 additional nucleotides upstream and downstream. These additional nucleotides seek to capture any influence that the flanking sequence may exert on the target \cite{conserved_pairing}. With these adjustments each duplex is represented by a binary vector of (fixed) size 280.
 
-The second vectorization method uses a Word2Vec approach. Word2Vec \cite{word2vec} is a Natural Language Processing (NLP) methodology to map words into numeric vectors based on their context. Being the context defined as the words surrounding the word to encode. For DNA sequences, however, there is no clear definition for words, so usually a k-mer (that is a set of $k$ continuous nucleotides)is used to define a word (see Figure \ref{fig:dna2vec}). Therefore, in case of biological sequences the context is defined as the set of $n$ adjacent k-mers (being $n$ a parameter to validate). For this thesis use the software available at \url{https://github.com/pnpnpn/dna2vec} to train the model used to encode the k-mers. This encoding has two important advantages compared to one hot encoding:
+The second vectorization method uses a Word2Vec approach. Whereas the vectors obtained through one-hot encoding are binary and sparse (mostly made of zeros), sequence embeddings are usually dense, very low-dimensional floating-point vectors. 
+
+Word2Vec \cite{word2vec} is a Natural Language Processing (NLP) methodology to map words into numeric vectors based on their context. Being the context defined as the words surrounding the word to encode. For DNA sequences, however, there is no clear definition for words, so usually a k-mer (that is a set of $k$ continuous nucleotides)is used to define a word (see Figure \ref{fig:dna2vec}). Therefore, in case of biological sequences the context is defined as the set of $n$ adjacent k-mers (being $n$ a parameter to validate). For this thesis use the software available at \url{https://github.com/pnpnpn/dna2vec} to train the model used to encode the k-mers. This encoding has two important advantages compared to one hot encoding:
 
 \begin{enumerate}
 	\item each k-mer of length comprised between 3 and 8 is mapped to an equal size vector of size 100.
@@ -181,7 +183,8 @@ Once the positive and the negative datasets have been created, we shuffled and m
 \end{figure}
 
 \section{The testing stage}
-There is a big difference regarding the procedure adopted for the testing stage compared to the training phase. Here the purpose is to predict if a given miRNA targets a certain gene, hence the testing data consists of pairs containing the miRNA and the whole 3'UTR transcript, rather than a specific MBS. This step is essential to be able to evaluate the whole pipeline process of DeepMiRNA. 
+There is a big difference regarding the procedure adopted for the testing stage compared to the training phase. Here the purpose is to predict if a given miRNA targets a certain gene, hence the testing data consists of pairs containing the miRNA and the whole 3'UTR transcript, rather than a specific MBS. This step is essential to be able to evaluate the whole pipeline process of DeepMiRNA.
+
 
 To correctly evaluate the network performance we used the experimentally verified miRNA:mRNA pairs excluded from the training set. We now describe all the steps involved in the test stage. 
 
@@ -201,11 +204,13 @@ In the light of new recent results, stating that functional miRNA targets can ar
 
 The CSSM adopted in DeepMiRNA use a very similar approach to miRAW \cite{miraw}: we consider a 30-nucleotide window to scan the 3'UTR and we extend the typical 7mer seed region (figure \ref{fig:canonical}a) considering the first 10 nucleotides of the miRNA transcript (figure \ref{fig:canonical}d) to look for partial complementarity.
 
-In particular, we consider a site to be a potential candidate site if there is a minimum number of base pairs, both Watson-Crick and Wobble, within the extended seed region. In this thesis we investigated two different configurations: 
+In particular, we consider a site to be a potential candidate site if there is a minimum number of base pairs, both Watson-Crick and Wobble, within the extended seed region. In this thesis we investigated three different configurations: 
 
 \begin{enumerate}
-	\item CSS-6.10: a candidate site must contain at least 6 base pairs between the extended seed region;
-	\item CSS-7.10: a candidate site must contain at least 7 base pairs between the extended seed region.
+	\item CSS-6.0:10: a candidate site must contain at least 6 base pairs between the extended seed region composed of the first 10 nucleotides;
+	\item CSS-7.0:10: a candidate site must contain at least 7 base pairs between the extended seed region composed of the first 10 nucleotides;
+	\item CSS-7.1:10: a candidate site must contain at least 7 base pairs between the extended seed region composed of the 9 nucleotides comprised from the second and the tenth. 
+	
 \end{enumerate}
 
 In each case, base pairs do not need to be consecutive in order to accommodate the presence of gaps and bulges. The task of finding non-consecutive complementary nucleotides can be mapped to the problem of finding the longest common subsequence (LCS ) between two strings as illustrated in figure \ref{fig:lcs}.
@@ -249,7 +254,7 @@ In average the Cython version of the algorithm is 20 times faster than the origi
 \subsection{Filtering predictions}
 In chapter \ref{Chapter2} we highlighted the importance of site accessibility for miRNA targets prediction. In fact, many studies \cite{helwak} \cite{common_features} have proved genes accommodate site accessibility by preferentially positioning targets in highly accessible regions \cite{accessibility_nrg_role} thus demonstrating that target accessibility is a critical factor in miRNA function.
 
-Moreover, the use of a greedier CSSM approach gives rise to an increase on the number of potential candidate sites for each miRNA:mRNA duplex. For example, on average, where a strict canonical approach identifies $\approx$ 3-4 sites per duplex, the CSS-6:10 identifies approximately 32 MBSs while the CSS-7:10 about 21. As a consequence the chance of obtaining more false positives is very likely to increase.  
+Moreover, the use of a greedier CSSM approach gives rise to an increase on the number of potential candidate sites for each miRNA:mRNA duplex. For example, on average, where a strict canonical approach identifies $\approx$ 3-4 sites per duplex, CSS-6.0:10 identifies approximately 32 MBSs while CSS-7.0:10 about 21 and CSS-7.1:10 around 15. As a consequence the chance of obtaining more false positives is very likely to increase.  
 
 Furthermore, the neural network itself may not be able to completely discern false from true positive duplexes. This is due, in particular, to two main factors: first of all the number of validated negative MBSs is extremely low; in fact, despite having  a good number of negatively validates miRNA:mRNA pairs, we only have a small quantity of negatively validated binding sites. Thus, we had to artificially select the negative sites for the training stage as explained in the previous section. Second, functional and non-functional sites are very similar in terms of complementarity with the pairing miRNA and, hence, we believe it's important to also consider the characteristics of the secondary structure of the duplex to improve the accuracy of the prediction and reduce the number of false positives.
 
@@ -259,7 +264,10 @@ To this purpose, we investigated the possibility of using an a-posteriori filter
 	\item the free energy $\Delta G_{free}$ of the folding region is computed, using Vienna Cofold, to check the amount of energy released during the reaction;
 	\item next we computed the opening energy $\Delta G_{open}$, that is the energy needed to unfold the mRNA and allow the miRNA binding;
 	\item the site accessibility energy $\Delta\Delta G$ is given by the difference between the free energy released with the binding and the opening energy (see figure \ref{fig:site_accessibility}). The bigger the value the more accessible the site:
-	$$\Delta\Delta G = \Delta G_{free} - \Delta G_{open}$$ 
+	\begin{equation} \label{eq:sa}
+		\Delta\Delta G = \Delta G_{free} - \Delta G_{open}
+	\end{equation}
+	 
 \end{itemize}    
 
 In order to use this feature as a filter we set a site accessibility threshold meaning that sites with a low value are discarded while only MBS with a site accessibility greater than the threshold are considered as functional. 
@@ -273,6 +281,24 @@ One may wonder why we used this feature as an a-posteriori filter rather than us
 	\label{fig:site_accessibility}
 \end{figure}
 
+\subsection{Obtaining the final classification}
+In order to classify a given duplex, we consider that the miRNA targets an mRNA if any of the potential MBSs of the mRNA are functional. The targeting process implemented in DeepMiRNA requires the neural network to classify at least one not filtered candidate site as functional to consider a miRNA:mRNA as a positive targeting event.
+
+More specifically, given a miRNA $m$ and a gene $g$ a candidate site selection method $sm(m,g)$ determines a set $CS$ of potential MBSs:
+%
+\begin{equation} \label{eq:eq1}
+	sm(m,g) = CS
+\end{equation}
+% prevent blank line
+To determine  if the the miRNA is targeting the gene, each candidate site within the miRNA:mRNA segment is properly encoded and input to the neural network. The result of the targeting prediction $T(m, g)$ corresponds to the disjunction of conjunction between the neural network outputs for all the candidate sites and the site accessibility check:
+%
+\begin{equation} \label{eq:eq2}
+	T(m,g) = \bigvee_{cs}{nn(m,cs) \wedge \Delta\Delta G(cs) > th_{sa}}
+\end{equation} 
+%
+Where $nn(m,cs)$ denotes the output of the neural network while $\Delta\Delta G(cs) > th_{sa}$ represents the filtering step checking the site accessibility of the candidate is sufficiently high.
+
+The fact that it only requires a single candidate to be predicted as functional makes DeepMiRNA particularly sensitive to false positive. This, however, it's partially mitigated by selecting a higher value for the site accessibility threshold $th_{sa}$. The best performance has been obtained by setting $th_{sa} = -14kcal/mol$.
 
 
 

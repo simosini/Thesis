@@ -33,26 +33,38 @@ The feed-forward network we designed for the miRNA target prediction task is a v
 
 While a neural network learns, neuron weights settle into their context within the network. Those weights are tuned for specific features providing some specialization. However, neighboring neurons become to rely on this specialization, which, if taken too far, can result in a fragile model too specialized on the training data. Hence, if neurons are randomly dropped out of the network during training, other neurons will have to step in and handle the representation required to make predictions for the missing neurons. This is believed to result in multiple independent internal representations being learned by the network. The effect is that the network becomes less sensitive to the specific weights of neurons and results in a model capable of better generalization and less likely to overfit the training data.    
 
-The output layer is composed of one sigmoid node that returns a value between 0 and 1 corresponding to the final score prediction. The resulting architecture can be visualized in figure \ref{fig:NN}.
+The output layer is composed of one sigmoid node that returns a value between 0 and 1 corresponding to the final score prediction. The class of the site is determined by the output of this neuron:
+
+\[class(i) = 
+\begin{cases} 
+	1 & \text{if } o \geq 0.4 \\
+	0 & \text{if } o < 0.4
+\end{cases}
+\]
+
+Where $i$ and $o$ denote respectively the input and the output of the network. The prediction threshold value $0.4$ has been empirically evaluated. 
+
 
 \begin{figure}[hbt!]
 	\centering
 	\includegraphics[width=\textwidth, height=0.52\textheight]{Figures/NN}
-	\caption{\textbf{The Neural Netkork}. The first hidden layer increases the dimensionality of the input allowing the representation of data in a more complex feature space. There is debate in the machine learning community regarding the need of such over-completion layers, as they do not necessarily improve the accuracy whilst making the learning process slower. Considering that the relatively low number of inputs of the proposed network allows a fast training procedure, we opted to include this higher dimension layer to give the network the chance of identifying more complex patterns.}
+	\caption{\textbf{The feed-forward neural network}. The first hidden layer increases the dimensionality of the input allowing the representation of data in a more complex feature space. There is debate in the machine learning community regarding the need of such over-completion layers, as they do not necessarily improve the accuracy whilst making the learning process slower. Considering that the relatively low number of inputs of the proposed network allows a fast training procedure, we opted to include this higher dimension layer to give the network the chance of identifying more complex patterns.}
 	\label{fig:NN}
 \end{figure}
 
-As optimization function we chose the Adam optimizer with the following parameters:
+For the loss function we chose the binary cross entropy with Adam optimizer set with the following parameters:
 
 \begin{itemize}
 	\item learning rate = 0.002;
 	\item beta\_1 = 0.9;
 	\item beta\_2 = 0.999;
 	\item epsilon = $1e-8$;
-	\item decay = 0
+	\item decay = 0.0
 \end{itemize}
 
-Despite being a very simple model, this network showed a better performances on the test set compared to other deeper (that is with more hidden layers) or bigger (i.e with a greater number of nodes) models. Check chapter \ref{Chapter5} for further details on the results.
+The resulting architecture can be visualized in figure\ref{fig:NN} and parameters such as number of layers and neurons have been chosen through cross validation.
+
+Despite being a very simple model, this network showed a better performances on the test set compared to other deeper (that is with more hidden layers) or more complex (i.e with a greater number of nodes) models. Check chapter \ref{Chapter5} for further details on the results.
 
 \section{The Convolutional Neural Network aka CNN}
 We have explained earlier, that the second encoding function provided by DeepMiRNA is based on Dna2Vec \cite{dna_distributed_repr}. In computational biology, one of the ubiquitous representation of long DNA sequence is dividing it into shorter k-mer components.  Unfortunately, the straightforward vectorization of k-mer as a one-hot vector is vulnerable to the curse of dimensionality. Worse yet, the distance between any pair of one-hot vectors is equidistant, even though, for example, the sequence \emph{ATGGC} should be closer to \emph{ATGGG} than \emph{CACGA}. This might be particularly problematic when applying the latest machine learning algorithms to solve problems in biological sequence analysis. Dna2Vec is, thus, a distributed representation of biological sequences that allows mapping k-mers to vectors of real numbers. By splitting the miRNA:MBS duplex in a fixed number of variable length k-mers, we were able to encode each pair into a bi-dimensional matrix. 
