@@ -67,7 +67,7 @@ The resulting architecture can be visualized in figure\ref{fig:NN} and parameter
 Despite being a very simple model, this network showed a better performances on the test set compared to other deeper (that is with more hidden layers) or more complex (i.e with a greater number of nodes) models. Check chapter \ref{Chapter5} for further details on the results.
 
 \section{The Convolutional Neural Network aka CNN}
-We have explained earlier, that the second encoding function provided by DeepMiRNA is based on Dna2Vec \cite{dna_distributed_repr}. In computational biology, one of the ubiquitous representation of long DNA sequence is dividing it into shorter k-mer components.  Unfortunately, the straightforward vectorization of k-mer as a one-hot vector is vulnerable to the curse of dimensionality. Worse yet, the distance between any pair of one-hot vectors is equidistant, even though, for example, the sequence \emph{ATGGC} should be closer to \emph{ATGGG} than \emph{CACGA}. This might be particularly problematic when applying the latest machine learning algorithms to solve problems in biological sequence analysis. Dna2Vec is, thus, a distributed representation of biological sequences that allows mapping k-mers to vectors of real numbers. By splitting the miRNA:MBS duplex in a fixed number of variable length k-mers, we were able to encode each pair into a bi-dimensional matrix. 
+We have explained earlier, that the second encoding function provided by DeepMiRNA is based on Dna2Vec \cite{dna_distributed_repr}. In computational biology, one of the most widely used representation of long DNA sequence consists in dividing it into shorter k-mer components.  Unfortunately, the straightforward vectorization of k-mer as a one-hot vector is vulnerable to the curse of dimensionality. Worse yet, the distance between any pair of one-hot vectors is equidistant, even though, for example, the sequence \emph{ATGGC} should be closer to \emph{ATGGG} than \emph{CACGA}. This might be particularly problematic when applying the latest machine learning algorithms to solve problems in biological sequence analysis. Dna2Vec is, thus, a distributed representation of biological sequences that allows mapping k-mers to dense vectors of real numbers. By splitting the miRNA:MBS duplex in a fixed number of variable length k-mers, we were able to encode each pair into a bi-dimensional matrix. 
 
 More specifically, each k-mer is embedded into a continuous vector space of $100$ dimensions, and each duplex is divided into 9 variable length k-mers: concatenating these vectors we obtain a $9x100$ matrix representing the encoded sequence (see figure \ref{fig:dna_embedding}).
 
@@ -81,7 +81,23 @@ More specifically, each k-mer is embedded into a continuous vector space of $100
 With this representation, we believe the best base model to use for our task is represented by a convolutional neural network. 
 
 \subsection{CNN architecture}
+Once the baseline model has been chosen, one must proceed with its implementation selecting the best possible design. This step can be very tricky, especially when dealing with convolutional networks.  In fact, according to the complexity of the architecture and the representation of the available data, a CNN may require a long training time, with a great number of epochs. This makes the evaluation of the model design a complicated task: large validation errors and little improvements in the first few epochs does not always imply that the chosen architecture is wrong.   
 
+For DeepMiRNA, the network was configured so that the number of inputs in the input layer was equal to the dimensionality of the encoded sequences,  while the output layer consisted of two softmax neurons. 
+
+The architecture of our convolutional network is shown in figure (add figure here) and it is mainly inspired to the CNN used in \cite{cnn_arch}. Given that our model must be trained on a relative small dataset we decided to adopt a single level of convolutional feature map followed by a non-linear ReLU activation layer and a max pooling layer immediately preceding the output softmax neurons. 
+
+%\begin{figure}[hbt!]
+%	\centering
+%	\includegraphics[width=\textwidth, height=0.4\textheight]{Figures/cnn_arch}
+%	\caption{\textbf{CNN architecture.}}
+%	\label{fig:cnn}
+%\end{figure}     
+
+For the compiling step required for the training stage, we selected the binary cross entropy loss function and we set the Adam optimizer with the same parameters used for the MLP network.
+
+Despite showing discrete results in terms of accuracy and F1-score on the validation set composed of never seen miRNA:MBS examples, the CNN does not perform very well on the test set especially if compared to the feed-forward network. The main issue
+concerns its scarce ability in identifying correctly negative miRNA:mRNA pairs that prevents this model from having a good generalization capability. We believe the main reason behind this, it's most likely due to the very small amount of negatively validated entries in the training set: issue that, instead, does not seem to affect the MLP model performance.
 
   
 
