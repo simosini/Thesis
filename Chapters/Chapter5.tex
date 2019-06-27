@@ -37,7 +37,7 @@ Once the best model has been selected, we built a fresh network using the best p
 \end{figure}
 
 \section{The role of the candidate site selection method}
-To investigate the impact of the site selection method, we compared the performances of the three different CSSM described in chapter\ref{Chapter3}. 
+The purpose of using a CSSM is to narrow the search space to simplify the neural network classification task. To investigate the impact of the site selection method, we compared the performances of three different methods as described in chapter\ref{Chapter3}. 
 
 Figure \ref{fig:cssm} summaries the obtained results: all methods reach accuracies between 0.8 and 0.82, these values are computed considering the imbalance of the test set, that is they are calculated as the average of the accuracies on positive and negative samples. CSS-6.0:10 seems to achieve slightly better performances for every metric but precision, compared to the other two methods. The F1-score is the harmonic average between precision and recall and shows how well both classes are classified by a particular CSSM. The values obtained are very similar to the accuracies and indicate an ability to effectively predict both negative and positive targets especially for CSS-6.0:10 and CSS-7.0:10.
 
@@ -47,6 +47,35 @@ Figure \ref{fig:cssm} summaries the obtained results: all methods reach accuraci
 	\caption{\textbf{Evaluation of DeepMiRNA different candidate site selection methods.} Results are evaluated in terms of balanced accuracy, precision, recall and f1-score. The best result was achieved using CSS-6.0:10.}
 	\label{fig:cssm}
 \end{figure}
+
+Candidates selection also involved the choice of a threshold for the binding energy $th_{duplex}$.  The idea was to only retain duplexes with a low free energy and, hence, able to form a stable bond. In order to set this value, we randomly extracted 10 non-overlapping folds from the test set, each composed of $5000$ entries, and we averaged the balanced accuracies obtained by each possible choice. Table \ref{tab:free_energy} shows that the best result has been obtained setting $th_{duplex} = -10$ kcal/mol. 
+
+\begin{table}[h!]
+	\caption{\textbf{Free energy threshold evalution.}}
+	\label{tab:free_energy}
+	\centering
+	\begin{tabular}{c c}
+		\toprule
+		\tabhead{Threshold} & \tabhead{Balanced Accuracy} \\
+		\midrule
+		0 & 0.79 \\
+		-2 & 0.792 \\
+		-4 & 0.798 \\
+		-6 & 0.824 \\
+		-8 & 0.849 \\
+		-9 & 0.857 \\
+		-10 & \textbf{0.861} \\
+		-11 & 0.85 \\
+		-12 & 0.835 \\
+		-14 & 0.788 \\
+		-16 & 0.74 \\
+		\bottomrule \\
+	\end{tabular}
+\end{table}
+
+Higher values produce longer lists of candidate sites and potentially increase the number of false positives, while low values may filter functional binding sites and  produce a higher number of false negatives.  
+
+
 
 \section{Site accessibility filter}
 In order to measure the effect of site accessibility on miRNA target prediction, we tested the best performing pipeline configuration without filtering the network output. While this reduces the computational cost of the whole process, DeepMiRNA becomes slightly more biased towards the prediction of positive sites. However, this is true only for the convolutional model. To underline this difference we report the results obtained with both network models.
@@ -84,16 +113,10 @@ their recall, and hence their F1-score, was low and so was their balanced accura
 	\includegraphics[width=1\textwidth, height=0.5\textheight]{Figures/tools_comparison}
 	\caption{\textbf{Comparison of DeepMiRNA with other commonly used prediction tools.} Even though miRAW performs better than DeepMiRNA in most of the metrics, it only has $0.55$ balanced accuracy. This is caused by its poor ability of identifying negative interactions. TargetScan (TS), in both its configurations, and PITA adopt a too conservative approach that inhibits their capacity of recognizing positive duplexes correctly.}
 	\label{fig:tools}
-\end{figure} 
+\end{figure}
 
-Conversely, PITA reported better accuracy and F1-score, but still lower than the one achieved by miRAW and DeepMiRNA. According to precision, recall and, hence, F1-score, miRAW perform slighty better than our tool, however the accuracy it achieves is very low (0.55). Balanced accuracy is the average between the true positive (TPR) and the true negative rate (TNR); to explain why miRAW reported such a low value for this metric we can check Table \ref{tab:metrics}:  
-
-NP and NN identifies respectively the number of positive and negative validated pairs in the test set, while TP, FP, TN and FN indicate the percentage of true/false positive/negative predictions. 
-In particular, these values has been computed as the fraction of predicted values of a certain class over the total size of the same class. So for example a TP value of $84\%$ states that of all positive samples of the test set $84\%$ were classified correctly, while a FN of $16\%$ indicates that for the negative class 16 samples out of 100 were misclassified. Those values help giving a feel of what TPR and TNR suggest.
-Finally, BA stands for balance accuracy.
-
-\begin{table}[h!]
-	\caption{\textbf{True positive and negative rates comparison between miRAW and DeepMiRNA.}}
+\begin{table}[b!]
+	\caption{\textbf{TPR and TNR comparison between miRAW and DeepMiRNA.}}
 	\label{tab:metrics}
 	\centering
 	\begin{tabular}{c c c c c c c c c}
@@ -104,13 +127,22 @@ Finally, BA stands for balance accuracy.
 		195825 & 11100 & 80\% & 17\% & 83\% & 20\% & 0.805 & 0.833 & 0.82 \\
 		\bottomrule\\
 	\end{tabular}
-\end{table}
+\end{table} 
+
+Conversely, PITA reported better accuracy and F1-score, but still lower than the one achieved by miRAW and DeepMiRNA. According to precision, recall and, hence, F1-score, miRAW perform slighty better than our tool, however the accuracy it achieves is very low (0.55). Balanced accuracy is the average between the true positive (TPR) and the true negative rate (TNR); to explain why miRAW reported such a low value for this metric we can check Table \ref{tab:metrics}.  
+
+
+
+NP and NN identify respectively the number of positive and negative validated pairs in the test set, while TP, FP, TN and FN indicate the percentage of true/false positive/negative predictions. 
+In particular, these values have been computed as the fraction of predicted values of a certain class over the total size of the same class. So for example a TP value of $84\%$ states that of all positive samples of the test set $84\%$ were classified correctly, while a FN of $16\%$ indicates that for the negative class 16 samples out of 100 were misclassified. Those values help in giving a feel of what TPR and TNR represent. Finally, BA stands for balance accuracy.
  
-MiRAW has a true positive rate of $0.84$ indicating its better ability in identifying positives miRNA:mRNA pairs compared to the other tools. However, a large number of negative sites has also been misclassified as positive ($75\%$), meaning that it performed poorly on negative entries. This is confirmed by a very low true negative rate which gives rise to a lower value of balanced accuracy. 
+MiRAW has a true positive rate of $0.84$ indicating its better ability in identifying positives miRNA:mRNA pairs compared to the other tools. However, a large number of negative sites has also been misclassified as positive ($75\%$), meaning that it performed poorly on negative entries. This is confirmed by a very low true negative rate which gives rise to a lower value of balanced accuracy.
 
-Conversely, DeepMiRNA shows a good ability in predicting both classes, even though it tends to be slightly biased towards negative predictions. To conclude, Figure \ref{fig:confusion_matrix} shows the confusion matrix of DeepMiRNA performance over the complete test set.
+Conversely, DeepMiRNA shows a good ability in predicting both classes, even though it tends to be slightly biased towards negative predictions. 
 
-\begin{figure}[hbt!]
+This tendency is reflected in the confusion matrix shown in figure \ref{fig:confusion_matrix} concerning DeepMiRNA's performance over the complete test set.
+
+\begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.7\textwidth, height=0.4\textheight]{Figures/conf_matrix}
 	\caption{\textbf{DeepMiRNA Confusion matrix for the test set.} This matrix shows that DeepMiRNA performs well on both classes.}
