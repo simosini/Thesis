@@ -1,42 +1,154 @@
 % Chapter 6
 
-\chapter{Conclusions} % Main chapter title
+\chapter{Experimental results} % Main chapter title
 
 \label{Chapter6} % For referencing the chapter elsewhere, use \ref{Chapter6} 
 
 %----------------------------------------------------------------------------------------
-\section{Final considerations}
-MiRNA's targeting is a complex, yet not fully understood, mechanism. In an ideal scenario it would be possible to experimentally verify the target set for all miRNAs, but both the cost and the limited throughput of current methods imply that miRNA studies still depend on computational predictions to complement experimental data.
+\section{Introduction}
+In the previous chapters we described how the DeepMiRNA's architecture is based on two main functional blocks: on one side there is the NN, whose purpose is that of analyzing the selected candidate target sites, while on the other there are the CSSM used during the target prediction step and the a-posteriori filter that tries to refine the network prediction. 
 
-On the other side, its imprecise nature makes the decision of which computational approach to employ for the task, extremely challenging. Often, one of the hardest part of solving any Machine Learning problem, can be, in fact, finding the right algorithm for the job. A certain model is better suited for different types of data and different problems and it's never easy to pick the right one. This is also due to the so called 'no free lunch theorem' \cite{nfl}, which roughly states that there is no 'perfect' Machine Learning algorithm that will perform well at any problem.
+To assess these two aspects, we first evaluated the outputs of the NN training process through cross validation and then investigated performance using the different candidate site selection methods outlined in chapter \ref{Chapter5}. These comprised the novel (non-canonical) models implemented for this thesis: CSS-6.10 and CSS-7.10. Finally, we tested DeepMiRNA’s performance by comparing it against TargetScan\cite{targetscan}, PITA\cite{accessibility_nrg_role} and miRAW \cite{miraw}, which represent the most commonly used target site predictors based on citations.
 
-For the miRNA's targets prediction task, however, the need of finding suitable patterns to distinguish functional binding sites from non-functional, guided our choice towards a  neural network. 
+The experimental results present in this chapter concern the best pipeline configuration for DeepMiRNA. This comprises the use of the feed-forward neural network that exhibited an overall better performance than the convolutional model, especially in the identification of negative binding sites. 
 
-Nowadays, deep learning has been exploited in many fields for various tasks, from image recognition to natural language processing with different results. The main advantage of its use consists in its capacity to automatically extract its own data feature descriptors. However, the more complex the network architecture, the more computational power (and data) it needs to properly extract valuable knowledge.
+There can be many reason explaining this differences, but we believe that the lack of a consistent dataset of negatively validated binding sites may be the principal cause. 
 
-In this thesis we tackled the problem of miRNA target classification adopting a neutral approach towards the prediction process, avoiding incorporating any hand-crafted feature related to the targeting process. The obtained results and the comparison between DeepMiRNA and other descriptor-based tools suggest that current knowledge is still not sufficient to accurately capture all aspects of the miRNA targeting process. In fact DeepMiRNA's better performance over most of the available feature-based predictors, indicates that the descriptors learned by our neural network are able to encode both current knowledge and additional information yet to be determined.   
+\section{Neural Netework evaluation}
+The best performing feed-forward neural network was trained using the whole training set with this parameters:
 
-Undoubtedly, the most challenging part in DeepMiRNA's development was the processing of different data sources to build representative train, test and validation sets. For this work we selected Diana TarBase and mirTarBase as our core data sources because they represented the most comprehensive set of evidence for miRNA:mRNA functional interactions. However, for most of the validated experiments the databases do not provide exact details of the target site for the supported interactions and do not contain data about the exact transcript of the experiment but only the identification of the gene. Unfortunately, any gene is associated with a variable number of transcripts and this lack of information forced us to make the decision of selecting the one with the longest sequence, potentially inserting unwanted noise to the data.    Also, in order to  obtain reliable binding site information we integrated PAR-CLIP \cite{grosswendt} and CLASH \cite{helwak} datasets, which provided us with these information, and cross-referenced them with the main datasets. These additional data, though, turned out to be almost exclusively related to experimentally verified positive data, containing only a few examples of negative validates pairs. This, again, lead us to the decision of artificially creating negative samples to be used for training stage.  
+\begin{itemize}
+	\item dropout rate = 0.7
+	\item optimizer = Adam as described in chapter \ref{Chapter5}
+	\item loss function = binary cross entropy
+	\item batch size = 128
+	\item number of epochs = 15
+\end{itemize}
 
-Thus, we can affirm that the amount of validated data available for the task is still not sufficient to capture all characteristics of the targeting process; this is the reason why we incorporated a set of rules to select the best binding sites candidates to be processed by the neural network. In an ideal scenario, with enough representative positive and negative data samples, this step could be skipped as a deep enough neural network should be able to map such information into its weights. Moreover, the requirement for partial complementarity within the seed region defining the CSSM used, seems to be universally accepted and established through numerous experimental studies \cite{common_features}.
+The above parameters where computed using a validation set composed of about 10000 examples (20\% of the training set).
 
-The binding sites selection steps also involved the relaxation of the canonical seed region into an extended miRNA subsequence comprising $10$ nucleotides from the first to the tenth (in the best configuration), to accommodate the presence of non-canonical targets: we called this sequence \emph{extended seed region}. This choice resulted in a better overall performance compared to other softwares utilizing a more conservative approach that considers only canonical binding sites and suggests that perfect seed region complementarity is not a sufficient discriminant to correctly identify miRNA's targets.
+Once the best model has been selected, we built a fresh network using the best parameters and we trained it holding out the 25\% of the training data for the purpose of testing its performance. This validation presented very good results in terms of predicting both positive and negative sites, with all evaluated metrics resulting in scores well above 0.9 (see figure\ref{fig:network_evaluation}).
 
-Another important task within this thesis was the choice of the neural network structure. Inspired by this article \cite{continuous_representation} we decided to face the vectorization step using two different algorithms: on one side the classical one-hot encoding of the sequences and on the other the continuous representation of biological sequence based on Dnad2Vec \cite{dna_distributed_repr}. This gave us the opportunity to tackle the miRNA targeting process from two different points of views.
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics[width=\textwidth]{Figures/network_evaluation}
+	\caption{\textbf{Network performance metrics.} To this purpose we trained the network with best parameters using 75\% of the training data. The remaining 25\% has been used as test set. As shown above all metrics are close to 0.95.}
+	\label{fig:network_evaluation}
+\end{figure}
 
-Testing results have decreed that the classical approach using a MLP design offers a more reliable and robust classifier. This is most likely due to the lack of complete representativeness exhibited by the available data and the more complex structure of a CNN that requires a wider range of training data to correctly set its weights. 
+\section{The role of the candidate site selection method}
+The purpose of using a CSSM is to narrow the search space to simplify the neural network classification task. To investigate the impact of the site selection method, we compared the performances of three different methods as described in chapter\ref{Chapter4}. 
 
-\section{Future work}
-Despite the enhanced performance demonstrated by DeepMiRNA, it is prudent to consider
-some of the potential limitations of automatic feature learning approaches such as DL. The hierarchical internal data representation learned by a neural network can be sometimes be difficult to interpret and map into human interpretable knowledge, hence it is not possible to directly identify the features that determine the classification. We tried to address this issue by looking at the weights learned after the training process using specific techniques such as Grad-CAM \cite{gradcam} and other visualization methods such as the ones described in this article \cite{nlp_visualizing}, but unfortunately we were not able to extract any valuable information. It's worth mentioning, though, that further investigations in that direction may aid the interpretation process and improve the classification accuracy, which is the next logical step in our work.
+Figure \ref{fig:cssm} summaries the obtained results: all methods reach accuracies between 0.8 and 0.82, these values are computed considering the imbalance of the test set, that is they are calculated as the average of the accuracies on positive and negative samples. CSS-6.0:10 seems to achieve slightly better performances for every metric but precision, compared to the other two methods. The F1-score is the harmonic average between precision and recall and shows how well both classes are classified by a particular CSSM. The values obtained are very similar to the accuracies and indicate an ability to effectively predict both negative and positive targets especially for CSS-6.0:10 and CSS-7.0:10.
 
-Another important improvement to DeepMiRNA could concern the extension to the whole gene transcript rather than only analyzing the 3' untranslated region. Recent studies \cite{mirwalk} \cite{helwak}, in fact, revealed the importance of the whole sequence, comprising both coding and 5' untranslated regions, in miRNA's targets prediction. Although over 60\% of miRNA:mRNA interactions take place inside the 3'UTR, we believe that extending the search of potential candidate sites to other regions is most likely to improve the accuracy of the predictor. 
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics[width=\textwidth]{Figures/cssm_evaluation}
+	\caption{\textbf{Evaluation of DeepMiRNA different candidate site selection methods.} Results are evaluated in terms of balanced accuracy, precision, recall and f1-score. The best result was achieved using CSS-6.0:10.}
+	\label{fig:cssm}
+\end{figure}
 
-For the development of DeepMiRNA, anyhow, we decided to only use data relative to the 3'UTR because it has still not been fully clarified if actual bindings to other regions exhibit the same potential to repress mRNA translation. 
+Candidates selection also involved the choice of a threshold for the binding energy $th_{duplex}$.  The idea was to only retain duplexes with a low free energy and, hence, able to form a stable bond. In order to set this value, we randomly extracted 10 non-overlapping folds from the test set, each composed of $5000$ entries, and we averaged the balanced accuracies obtained by each possible choice. Table \ref{tab:free_energy} shows that the best result has been obtained setting $th_{duplex} = -10$ kcal/mol. 
 
-Besides, even though the work presented in this thesis focused on the prediction of human miRNA targets, the same methodology can be applied to build target prediction models for any other living species, aware that gathering enough representative data will be of crucial importance for the new task. 
+\begin{table}[h!]
+	\caption{\textbf{Free energy threshold evalution.}}
+	\label{tab:free_energy}
+	\centering
+	\begin{tabular}{c c}
+		\toprule
+		\tabhead{Threshold} & \tabhead{Balanced Accuracy} \\
+		\midrule
+		0 & 0.79 \\
+		-2 & 0.792 \\
+		-4 & 0.798 \\
+		-6 & 0.824 \\
+		-8 & 0.849 \\
+		-9 & 0.857 \\
+		-10 & \textbf{0.861} \\
+		-11 & 0.85 \\
+		-12 & 0.835 \\
+		-14 & 0.788 \\
+		-16 & 0.74 \\
+		\bottomrule \\
+	\end{tabular}
+\end{table}
 
-We conclude this thesis by considering that the presented approach will certainly benefit from further experimental studies that will serve to validate new predictions obtained by DeepMiRNA, but also to generate new experimental data to reliably expand the training of the model in both its configurations.
+Higher values produce longer lists of candidate sites and potentially increase the number of false positives, while low values may filter functional binding sites and  produce a higher number of false negatives.  
+
+
+
+\section{Site accessibility filter}
+In order to measure the effect of site accessibility on miRNA target prediction, we tested the best performing pipeline configuration without filtering the network output. While this reduces the computational cost of the whole process, DeepMiRNA becomes slightly more biased towards the prediction of positive sites. However, this is true only for the convolutional model. To underline this difference we report the results obtained with both network models.
+
+Table \ref{tab:sa_filter} shows that using a site accessibility filter (WF) with the feed-forward neural network does not improve the prediction performance, in fact, a no filter (NF) configuration actually achieves better results. This means that the rate of false negatives generated by the filter is higher than the gain derived from the reduction of the false positives. Achieving high precision means that when the network output a $1$ is almost never fails, while high values of recall implies the number of false negative is low. These results show that the feed-forward network is very precise in identifying negative binding sites, while it behaves worse with positive targets.  
+
+For the CNN, instead, the filtering steps improves the network ability to predict miRNA's targets correctly. Table \ref{tab:sa_filter} indicates that precision, which is the measure of how confident the system is predicting positive values, and balanced accuracies increase, while recall, that is the fraction of positive instances that have been correctly classified over the total amount of validated positive entries, decreases much slower. 
+
+\begin{table}[h!]
+	\caption{\textbf{Results with or without the a-posteriori filter.}}
+	\label{tab:sa_filter}
+	\centering
+	\begin{tabular}{| c | c | c | c | c | c | c | c | c |}
+		\hline
+		\multirow{2}{4.5em}{\textbf{Classifier}} & \multicolumn{2}{c|}{\textbf{Accuracies}} & \multicolumn{2}{c|}{\textbf{Precision}} & \multicolumn{2}{c|}{\textbf{Recall}} & \multicolumn{2}{c|}{\textbf{F1-score}} \\ 
+		\cline{2-9}
+		& \emph{NF} & \emph{WF} & \emph{NF} & \emph{WF} & \emph{NF} & \emph{WF} & \emph{NF} & \emph{WF} \\ 
+		\hline
+		\textbf{Feed-forward} & \textbf{0.827} & 0.82 & 0.936 & \textbf{0.939} & \textbf{0.794} & 0.785 & \textbf{0.840} & 0.838 \\ 
+		\hline
+		\textbf{CNN} & 0.628 & \textbf{0.652} & 0.649 & \textbf{0.761} & \textbf{0.662} & 0.621 & 0.64 & \textbf{0.681} \\ 
+		\hline 
+	\end{tabular}
+\end{table}
+
+\section{Comparison with other miRNA target prediction tools}
+
+Figure \ref{fig:tools} compares the performance of DeepMiRNA best configuration, that is CSS-6.0:10 without filter, with state of art target prediction software tools TargetScan, PITA and miRAW using the test set defined in chapter \ref{Chapter4}.
+
+For TargetScan we exploited both available configurations: TS conserved which uses an additional feature about interspecies conservation of miRNA and TS non-conserved which does not. For both approaches, the low accuracies seem a consequence of their tendency to misclassify true targets as negative; i.e., despite reporting high precision (> 0.9),
+their recall, and hence their F1-score, was low and so was their balanced accuracies.
+
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics[width=1\textwidth, height=0.5\textheight]{Figures/tools_comparison}
+	\caption{\textbf{Comparison of DeepMiRNA with other commonly used prediction tools.} Even though miRAW performs better than DeepMiRNA in most of the metrics, it only has $0.55$ balanced accuracy. This is caused by its poor ability of identifying negative interactions. TargetScan (TS), in both its configurations, and PITA adopt a too conservative approach that inhibits their capacity of recognizing positive duplexes correctly.}
+	\label{fig:tools}
+\end{figure}
+
+\begin{table}[b!]
+	\caption{\textbf{TPR and TNR comparison between miRAW and DeepMiRNA.}}
+	\label{tab:metrics}
+	\centering
+	\begin{tabular}{c c c c c c c c c}
+		\toprule
+		\tabhead{NP} & \tabhead{NN} & \tabhead{TP} & \tabhead{FP} & \tabhead{TN} & \tabhead{FN} & \tabhead{TPR} & \tabhead{TNR} & \tabhead{BA} \\
+		\midrule
+		195825 & 11100 & 84\% & 75\% & 25\% & 16\% & 0.84 & 0.254 & 0.547 \\
+		195825 & 11100 & 80\% & 17\% & 83\% & 20\% & 0.805 & 0.833 & 0.82 \\
+		\bottomrule\\
+	\end{tabular}
+\end{table} 
+
+Conversely, PITA reported better accuracy and F1-score, but still lower than the one achieved by miRAW and DeepMiRNA. According to precision, recall and, hence, F1-score, miRAW perform slighty better than our tool, however the accuracy it achieves is very low (0.55). Balanced accuracy is the average between the true positive (TPR) and the true negative rate (TNR); to explain why miRAW reported such a low value for this metric we can check Table \ref{tab:metrics}.  
+
+
+
+NP and NN identify respectively the number of positive and negative validated pairs in the test set, while TP, FP, TN and FN indicate the percentage of true/false positive/negative predictions. 
+In particular, these values have been computed as the fraction of predicted values of a certain class over the total size of the same class. So for example a TP value of $84\%$ states that of all positive samples of the test set $84\%$ were classified correctly, while a FN of $16\%$ indicates that for the negative class 16 samples out of 100 were misclassified. Those values help in giving a feel of what TPR and TNR represent. Finally, BA stands for balance accuracy.
  
+MiRAW has a true positive rate of $0.84$ indicating its better ability in identifying positives miRNA:mRNA pairs compared to the other tools. However, a large number of negative sites has also been misclassified as positive ($75\%$), meaning that it performed poorly on negative entries. This is confirmed by a very low true negative rate which gives rise to a lower value of balanced accuracy.
 
+Conversely, DeepMiRNA shows a good ability in predicting both classes, even though it tends to be slightly biased towards negative predictions. 
+
+This tendency is reflected in the confusion matrix shown in figure \ref{fig:confusion_matrix} concerning DeepMiRNA's performance over the complete test set.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.7\textwidth, height=0.4\textheight]{Figures/conf_matrix}
+	\caption{\textbf{DeepMiRNA Confusion matrix for the test set.} This matrix shows that DeepMiRNA performs well on both classes.}
+	\label{fig:confusion_matrix}
+\end{figure} 
   
+
+
+ 

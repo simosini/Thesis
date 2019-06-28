@@ -1,86 +1,58 @@
 % Chapter 2
 
-\chapter{MicroRNAs target prediction computational methods} % Main chapter title
+\chapter{MicroRNAs and their importance in living beings} % Main chapter title
 
 \label{Chapter2} % For referencing the chapter elsewhere, use \ref{Chapter2} 
 
-
 %----------------------------------------------------------------------------------------
 
-\section{Introduction}
-Earlier in Chapter~\ref{Chapter1} we described how miRNAs play a fundamental role in gene regulation. It is common belief that the final and probably most relevant step in their regulatory pathway is targeting \cite{computational_methods}. Targeting is intended as the binding of the mature miRNA to the messenger RNA via the RNA Induced Silencing Complex (see figure \ref{fig:mirna_binding}). Hence, valid targets need to be identified for miRNAs in order to properly understand their role in cellular pathways. 
-
-However, many of the discovered miRNAs do not yet have identified targets. This is especially the case in animals where the miRNA does not bind to its target with a nearly perfect matching as it does in plants \cite{perfect_matching}. Experiments have proved that a single miRNA has the potential to regulate hundreds of target mRNAs and multiple miRNAs may compete for the regulation of the same mRNA \cite{multiple_binds}, however target validation is difficult, expensive, and time consuming. Thus, having considered all these facts, it is of crucial importance to have accurate computational miRNA target predictions.
+\section{What are microRNAs?}
+MicroRNAs (abbreviated miRNAs) are a family of $\approx 22$-nucleotide small non-coding RNAs that regulates gene expression at the post-transcriptional level \cite{mirna_intro}. This means that they act by binding to partially complementary sites on target genes, which had been previously transcribed from the DNA of the cell, to induce cleavage or repression of productive translation, preventing this way the target gene to be able to exit the cell and start the translational process that produces peptides and proteins.
 
 \begin{figure}[hbt!]
 	\centering
-	\includegraphics[width=0.7\textwidth]{Figures/seed_match}
-	\caption{Example of miRNA targeting.}
-	\label{fig:mirna_binding}
+	\includegraphics[width=1.0\textwidth]{Figures/mirna_genesis}
+	\caption{MiRNAs genesis and functionalities}
+	\label{fig:mirna_genesis}
 \end{figure}
 
+\subsection{Transcription and processing of miRNAs}
+As shown in figure \ref{fig:mirna_genesis} miRNAs genes are transcribed by the RNA polymerase II as as large primary transcripts (pri-miRNA) that are processed by a protein complex containing the enzyme Drosha, to form an approximately 70 nucleotide precursor miRNA (pre-miRNA). This precursor is subsequently transported to the cytoplasm where it is processed by a second enzyme, called DICER, to form a mature miRNA of approximately 22 nucleotides. The mature miRNA is then incorporated into a ribonuclear particle to form the RNA-induced silencing complex, RISC, which mediates gene silencing.
+
+It's important to note that, generally, only one of the two strands of the stem loop is incorporated into the silencing process, and it's selected on the basis of its thermodynamic instability and weaker base-pairing on the 5' end relative to the other strand. The latter, called the passenger strand due to its lower levels in the steady state, is usually denoted with an asterisk (*) and is normally degraded. However, in some cases, both strands of the duplex are viable and become functional miRNAs that target different mRNA populations. (see figure \ref{fig:mirna_stems})
+
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics[width=1.0\textwidth]{Figures/mirna_stems}
+	\caption{Examples of miRNA stem-loops. In red is shown the mature miRNA}
+	\label{fig:mirna_stems}
+\end{figure}
+
+\subsection{RNA-induced silencing complex (RISC)}
+As mentioned before the mature miRNA is part of an active RNA-induced silencing complex (RISC). This process represents their main functionality in both animals and plants. 
+The RISC it is a key process in gene silencing and can act in two different ways as depicted in the right-hand side of picture \ref{fig:mirna_genesis}: via mRNA degradation or by preventing mRNA translation. It has been demonstrated that given complete complementarity between the miRNA and target mRNA sequence, Ago2 can cleave the mRNA and lead to direct mRNA degradation. In the presence of only partial complementarity instead, silencing is achieved by preventing translation \cite{cleavage}.
+ 
 %----------------------------------------------------------------------------------------
 
-\section{MiRNA target prediction}
-Before miRNA target prediction tools were available, possible miRNA binding sites were
-determined manually. These target sites were later confirmed by laborious and inefficient techniques such as site-directed mutagenesis and other experimental methods. The identification of the first targets for the let-7 and lin-4 miRNAs led to the idea that miRNAs have a pattern in targeting genes which could be used to develop target prediction algorithms \cite{first_predictions}.
+\section{Why are they important?}
+MiRNAs are particularly abundant in many mammalian cell types and appear to target about 60\% of the genes of humans and other mammals \cite{conserved_pairing}.
 
-Originally gene targeting by miRNAs was believed to be the result of their binding to the 3'UTR of the target mRNA \cite{multiple_binds}, however recent studies \cite{grosswendt} have confirmed gene regulation as a result of the binding of the miRNA to the coding region as well as to the 5'UTR. Furthermore, computational evidence suggests that regulation via the binding of the miRNA to the coding region differs in comparison to the binding pattern seen at the 3'UTR. In particular, it's suggested that miRNAs target the coding regions of mRNAs with short 3'UTRs \cite{functional_sites}.
+Many miRNAs are evolutionarily conserved, which implies that they have important biological functions \cite{conserved_pairing}. For example, 90 families of miRNAs have been conserved since at least the common ancestor of mammals and fish, and most of these conserved miRNAs have important functions.
 
-Another key factor in target prediction is that 3'UTRs are prone to change under different conditions which might result in the elimination of the target site. Binding in the coding region on the other hand may instead present an evolutionary advantage for the cell as it could help in the preservation of the miRNA binding site \cite{mirna_targets}. 
+The discovery of the first miRNA over 20 years ago has ushered in a new era in molecular biology. There are now over 2000 miRNAs that have been discovered in humans and it is believed that they collectively regulate two third of the genes in the genome.
 
-\subsection{Features and methodologies}
-While many miRNA targets have been computationally predicted only a limited number
-have been experimentally validated. Moreover, although a variety of miRNA target prediction algorithms are implemented, results amongst them are generally inconsistent and correctly identifying functional miRNA targets remains a challenging task.
+The repressive action of miRNAs has a huge impact on many biological processes such as cell cycle control and several developmental and physiological processes including stem cell differentiation, cardiac and skeletal muscle development, neurogenesis, insulin secretion, cholesterol metabolism, aging, immune responses and viral replication. \cite{mirna_annotation}
 
-The average performance of target prediction tools, which typically identify approximately 80\% of known miRNA targets, indicates that the mechanisms associated with miRNA-regulated processes remain poorly understood. Thus, there is a room for novel approaches to improve the knowledge of the rules that govern their targeting process \cite{targeting_rules}
+In addition to their important roles in healthy individuals, microRNAs have also been implicated in a number of diseases including a broad range of cancers, heart and neurological diseases.  In fact it has been discovered that their expression patterns  are highly specific in respect to external stimuli, developmental stage or tissue and this can be used to diagnose diseases in which the expression levels of miRNAs are known to change considerably \cite{computational_methods}. Consequently, miRNAs are intensely studied as candidates for clinical diagnosis and predictors of drug response \cite{mirna_diseases}.
 
-The various methodologies implemented use several different approaches and analyze a wide range of features for this task. Almost all target prediction methods are rule-based or adopt machine learning methodology with varying success. Rule-based systems incorporate various human-crafted descriptors to represent miRNA:gene target binding (e.g. type of pairs in the site, binding stability, or conservation of the target site among species). Machine learning techniques also use those descriptors, but as input features to machine learning models. The limitation of both these approaches is indeed the process of feature selection and representation, which is constrained by
-the use of human selected descriptors to model a process that is not fully understood.
+\section{Why miRNAs target prediction is a difficult task?}
+MiRNA's targeting is a complex mechanism, yet not fully understood. This process involves the generation of complex regulatory networks and understanding mechanisms and functions of these networks requires systematic experimental investigation. In the ideal world it would be possible to experimentally validate every single of all miRNAs, but the cost and time needed for the verification make miRNA studies still depending on computational predictions to complement experimental data.
 
-The most common characteristics used in miRNA targets identification are \cite{common_features}:
-\begin{itemize}
-	\item seed region complementarity
-	\item free energy
-	\item site accessibility
-	\item conservation
-\end{itemize}
+The apparent complementarity between miRNA and its target could be seen as an advantage
+for computational analysis; however, other features of miRNA-UTRs association make matters more complicated. The usual sequence alignment algorithms assume longer sequences than the  20-23nt of miRNAs. This short length makes ranking and scoring of targets very difficult as statistical techniques for sequence matching require longer sequences to be significant. Besides, binding sites actually consist of regions of complementarity, bulges and mismatches. Hence, complementarity is not sufficient to identify functional targets.  
 
-\subsubsection{The seed region}
-Targeting patterns are very different between plants and animals. Plants, in fact, show a near perfect complement between their miRNA and the respective target mRNA. On the other hand animal miRNAs bind their targets with only partial complementarity. In particular, a region of about 6 to 8 nucleotides in length at the beginning of the miRNA is of crucial importance in the targeting.  This short subsequence is called \emph{seed region} and it comprises the nucleotides between the second at the eighth (the seed sequence in Figure \ref{fig:mirna_binding}) starting from the 5' end. 
-The seed region is very important because it binds to the target mRNA leading to the regulation of the gene in question \cite{mirna_overview}.
+Recent studies \cite{common_features} \cite{computational_methods} reveal that a single miRNA can bind to many different genes. On average, each miRNA have interactions with over $200$ mRNAs and these genes may offer tens of  different site locations along their sequence, however, not all these interactions give origin to a functional binding site: the same miRNA:mRNA pair may create a bond which is functional in a certain tissue but not inside another cell type. 
 
-Undoubtedly the seed region is one of the most commonly used miRNA traits for target prediction. This seed-centric view, in fact,  has been supported by structural studies \cite{structural_basis} and a widely cited report  \cite{canonical_target} that investigated the importance of other (non-canonical) regions within a miRNA concluding that their contributions had relatively low relevance compared to the (canonical)
-seed region. More recent experiments, however, have highlighted a role for the entire miRNA, suggesting that a more flexible methodology is needed \cite{helwak}.
+Besides, environmental conditions and other external factors  may also contribute to binding sites functionality as described in \cite{efficient_use_accessibility}.
 
-\begin{figure}[hbt!]
-	\centering
-	\includegraphics[width=0.5\textwidth]{Figures/canonical_noncanonical}
-	\caption{Example of canonical and non-canonical binding sites.}
-	\label{fig:canonical_binding}
-\end{figure}
-
-\subsubsection{Free energy}
-The free energy, also called hybridization energy,  is defined as the energy released by the pairing between the miRNA and mRNA and it can be used as the measure of the stability of the bond. In fact a stable bond is considered more likely to be a functional target of the miRNA. However, since measuring this quantity directly is difficult, usually the change of free energy during a reaction is considered ($\Delta G$). Reactions with a negative $\Delta G$ have less energy available to react in the future, hence they result in systems with an increased stability. By predicting how the miRNA and its candidate target hybridize, regions of high and low free energy can be inferred (Figure \ref{fig:free_energy}) and the overall $\Delta G$ can be used as an indicator of how strongly bound they are \cite{free_energy_survey}. The lower this value the more stable the binding.
-
-\begin{figure}[hbt!]
-	\centering
-	\includegraphics[width=0.5\textwidth]{Figures/free_energy}
-	\caption{A hairpin loop is shown with the loop corresponding to a region of high free energy (a positive $\Delta G$) and the stem corresponding to a region of low free energy (a negative $\Delta G$)}
-	\label{fig:free_energy}
-\end{figure}
-
-\subsubsection{Site accessibility}
-Site accessibility is the measure of the ease with which a miRNA can locate and hybridize with its target. After transcription, in fact,  a mRNA assumes a certain secondary structure which can interfere with the miRNA ability to bind to its target site. To understand why this is important, we need to consider that the miRNA:mRNA hybridization involves  a two-step process in which a miRNA firstly binds to a short accessible region of the mRNA and only after, while the secondary structure of the mRNA unfolds, completes the binding.  It is likely that secondary structures contribute to target recognition, because there is an energetic cost to freeing base-pairing interactions within mRNA in order to make the target accessible for miRNA binding. Hence, to assess the likelihood that a mRNA is a target of a given miRNA, the predicted amount of energy required to make the site accessible (the so called site accessibility energy SAE) should be taken into consideration \cite{accessibility_nrg_role}.
-
-The SAE	can be computed as the difference between the free energy cost of opening the mRNA and free energy gained from the intermolecular interaction (Figure \ref{fig:opening_energy}).
-
-\begin{figure}[hbt!]
-	\centering
-	\includegraphics[width=0.7\textwidth]{Figures/opening_energy}
-	\caption{Binding of a miRNA to its target mRNA is depicted as a 2-step process. Portion of the mRNA structure must be open before miRNA:mRNA base pairing can be established.}
-	\label{fig:opening_energy}
-\end{figure}
-
-\subsubsection{Conservation}
-Conservation refers to the maintenance of a sequence across species. According to many reports \cite{computational_methods} looking at conserved targets between different species helps reducing the number of false positive results. However, other more recent studies highlighted the fact that this may also increase the number of false negatively identified targets \cite{conserved_pairing}.
+All these circumstances make identification of miRNA targets a very challenging task that must be carefully tackled in order to have a better understanding of their role in the gene silencing complex. 
