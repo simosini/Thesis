@@ -85,14 +85,14 @@ Once the baseline model has been chosen, one must proceed with its implementatio
 
 For DeepMiRNA, the network was configured so that the number of inputs in the input layer was equal to the dimensionality of the encoded sequences,  while the output layer consisted of two softmax neurons. 
 
-The architecture of our convolutional network is shown in figure (add figure here) and it is mainly inspired to the CNN used in \cite{cnn_arch}. Given that our model must be trained on a relative small dataset we decided to adopt a single level of convolutional feature map followed by a non-linear ReLU activation layer and a max pooling layer immediately preceding the output softmax neurons. 
+The architecture of our convolutional network is shown in figure \ref{fig:cnn} and it is mainly inspired to the CNN used in \cite{cnn_arch}. Given that our model must be trained on a relative small dataset we decided to adopt a single level of convolutional feature map followed by a non-linear ReLU activation layer and a max pooling layer immediately preceding the output softmax neurons. 
 
-%\begin{figure}[hbt!]
-%	\centering
-%	\includegraphics[width=\textwidth, height=0.4\textheight]{Figures/cnn_arch}
-%	\caption{\textbf{CNN architecture.}}
-%	\label{fig:cnn}
-%\end{figure}     
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics[width=\textwidth, height=0.4\textheight]{Figures/cnn_arch}
+	\caption{\textbf{CNN architecture.} The input duplex is first split in 9 different length kmers to form the sentence matrix. The matrix is then fed into the convolutional network for prediction.}
+	\label{fig:cnn}
+\end{figure}     
 
 For the compiling step required for the training stage, we selected the binary cross entropy loss function and we set the Adam optimizer with the same parameters used for the MLP network.
 
