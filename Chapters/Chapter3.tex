@@ -8,14 +8,14 @@
 %----------------------------------------------------------------------------------------
 
 \section{Introduction}
-Earlier in Chapter~\ref{Chapter2}, we described how miRNAs play a fundamental role in gene regulation. It is a common belief that the final and probably most relevant step in their regulatory pathway is targeting \cite{computational_methods}. Targeting is intended as the binding of the mature miRNA to the messenger RNA via the RNA Induced Silencing Complex (see figure \ref{fig:mirna_binding}). Hence, valid targets need to be identified for miRNAs in order to properly understand their role in cellular pathways. 
+Earlier in Chapter \ref{Chapter2}, we described how miRNAs play a fundamental role in gene regulation. It is a common belief that the final and probably most relevant step in their regulatory pathway is targeting \cite{computational_methods}. Targeting is intended as the binding of the mature miRNA to the messenger RNA via the RNA Induced Silencing Complex (see figure \ref{fig:mirna_binding}). Hence, valid targets need to be identified for miRNAs in order to properly understand their role in cellular pathways. 
 
 However, many of the discovered miRNAs do not yet have identified targets. This is especially the case in animals where the miRNA does not bind to its target with a nearly perfect matching as it does in plants \cite{perfect_matching}. Experiments have proved that a single miRNA has the potential to regulate hundreds of target mRNAs and multiple miRNAs may compete for the regulation of the same mRNA \cite{multiple_binds}, however, target validation is difficult, expensive, and time-consuming. Thus, having considered all these facts, it is of crucial importance to have accurate computational miRNA target predictions.
 
 \begin{figure}[hbt!]
 	\centering
 	\includegraphics[width=0.7\textwidth]{Figures/seed_match}
-	\caption{Example of miRNA targeting.}
+	\caption{\keyword{Example of miRNA targeting.}}
 	\label{fig:mirna_binding}
 \end{figure}
 
@@ -31,9 +31,9 @@ Another key factor in target prediction is that 3'UTRs are prone to change under
 
 \subsection{Features and methodologies}
 While many miRNA targets have been computationally predicted only a limited number
-have been experimentally validated. Moreover, although a variety of miRNA target prediction algorithms are implemented, results amongst them are generally inconsistent and correctly identifying functional miRNA targets remains a challenging task.
+have been experimentally validated. Moreover, although a variety of miRNA target prediction tools exist, results amongst them are generally inconsistent and correctly identifying functional miRNA targets remains a challenging task.
 
-The average performance of target prediction tools, which typically identify approximately 80\% of known miRNA targets, indicates that the mechanisms associated with miRNA-regulated processes remain poorly understood. Thus, there is room for novel approaches to improve the knowledge of the rules that govern their targeting process \cite{targeting_rules}
+The average performance of target prediction tools, which typically identify approximately 75\% of known miRNA targets, indicates that the mechanisms associated with miRNA-regulated processes remain poorly understood. Thus, there is room for novel approaches to improve the knowledge of the rules that govern their targeting process \cite{targeting_rules}
 
 The various methodologies implemented use several different approaches and analyze a wide range of features for this task. Almost all target prediction methods are rule-based or adopt a machine learning methodology with varying success. Rule-based systems incorporate various human-crafted descriptors to represent miRNA:gene target binding (e.g. type of pairs in the site, binding stability, or conservation of the target site among species). Machine learning techniques also use those descriptors, but as input features to machine learning models. The limitation of both these approaches is indeed the process of feature selection and representation, which is constrained by
 the use of human selected descriptors to model a process that is not fully understood.
@@ -47,7 +47,7 @@ The most common characteristics used in miRNA targets identification are \cite{c
 \end{itemize}
 
 \subsubsection{The seed region}
-Targeting patterns are very different between plants and animals. Plants, in fact, show a near perfect complement between their miRNA and the respective target mRNA. On the other hand, animal miRNAs bind their targets with only partial complementarity. In particular, a region of about 6 to 8 nucleotides in length at the beginning of the miRNA is of crucial importance in the targeting.  This short subsequence is called \emph{seed region} and it comprises the nucleotides between the second at the eighth (the seed sequence in Figure \ref{fig:mirna_binding}) starting from the 5' end. 
+Targeting patterns are very different between plants and animals. Plants, in fact, show a near perfect complement between the whole miRNA and the respective target mRNA. On the other hand, animal miRNAs bind to their targets with only partial complementarity. In particular, a region of 7 nucleotides in length at the beginning of the miRNA is of crucial importance in the targeting.  This short subsequence is called \emph{seed region} and it comprises the nucleotides between the second at the eighth (the seed sequence in Figure \ref{fig:mirna_binding}) starting from the 5' end. 
 The seed region is very important because it binds to the target mRNA leading to the regulation of the gene in question \cite{mirna_overview}.
 
 Undoubtedly the seed region is one of the most commonly used miRNA traits for target prediction. This seed-centric view, in fact,  has been supported by structural studies \cite{structural_basis} and a widely cited report  \cite{canonical_target} that investigated the importance of other (non-canonical) regions within a miRNA concluding that their contributions had relatively low relevance compared to the (canonical)
@@ -56,7 +56,7 @@ seed region. More recent experiments, however, have highlighted a role for the e
 \begin{figure}[hbt!]
 	\centering
 	\includegraphics[width=0.5\textwidth]{Figures/canonical_noncanonical}
-	\caption{Example of canonical and non-canonical binding sites.}
+	\caption{\keyword{Example of canonical and non-canonical binding sites.} Canonical binding sites (A) require a perfect complementarity between miRNA's seed region and mRNA. Below (B) two example of non-canonical bindings: these configurations allow the presence of mismatches and bulges.}
 	\label{fig:canonical_binding}
 \end{figure}
 
@@ -66,19 +66,19 @@ The free energy, also called hybridization energy,  is defined as the energy rel
 \begin{figure}[hbt!]
 	\centering
 	\includegraphics[width=0.5\textwidth]{Figures/free_energy}
-	\caption{A hairpin loop is shown with the loop corresponding to a region of high free energy (a positive $\Delta G$) and the stem corresponding to a region of low free energy (a negative $\Delta G$)}
+	\caption{\keyword{Free energy.} A hairpin loop is shown with the loop corresponding to a region of high free energy (a positive $\Delta G$) and the stem corresponding to a region of low free energy (a negative $\Delta G$).}
 	\label{fig:free_energy}
 \end{figure}
 
 \subsubsection{Site accessibility}
-Site accessibility is the measure of the ease with which a miRNA can locate and hybridize with its target. After transcription, in fact,  an mRNA assumes a certain secondary structure that can interfere with the miRNA ability to bind to its target site. To understand why this is important, we need to consider that the miRNA:mRNA hybridization involves a two-step process in which a miRNA firstly binds to a short accessible region of the mRNA and only after, while the secondary structure of the mRNA unfolds, completes the binding.  It is likely that secondary structures contribute to target recognition because there is an energetic cost to freeing base-pairing interactions within mRNA in order to make the target accessible for miRNA binding. Hence, to assess the likelihood that an mRNA is a target of a given miRNA, the predicted amount of energy required to make the site accessible (the so-called site accessibility energy SAE) should be taken into consideration \cite{accessibility_nrg_role}.
+Site accessibility is the measure of the ease with which a miRNA can locate and hybridize with its target. After transcription, in fact,  an mRNA assumes a certain secondary structure that can interfere with the miRNA ability to bind to its target site. To understand why this is important, we need to consider that the miRNA:mRNA hybridization involves a two-step process in which a miRNA firstly binds to a short accessible region of the mRNA and only after, while the secondary structure of the mRNA unfolds, completes the binding.  It is likely that secondary structures contribute to target recognition because there is an energetic cost to freeing base-pairing interactions within the mRNA in order to make the target accessible for miRNA binding. Hence, to assess the likelihood that an mRNA is a target of a given miRNA, the predicted amount of energy required to make the site accessible (the so-called site accessibility energy SAE) should be taken into consideration \cite{accessibility_nrg_role}.
 
 The SAE	can be computed as the difference between  the free energy gained from the intermolecular interaction and the energy cost of opening the mRNA fold (Figure \ref{fig:opening_energy}).
 
 \begin{figure}[hbt!]
 	\centering
 	\includegraphics[width=0.7\textwidth]{Figures/opening_energy}
-	\caption{Binding of a miRNA to its target mRNA is depicted as a 2-step process. Portion of the mRNA structure must be open before miRNA:mRNA base pairing can be established.}
+	\caption{\keyword{Site accessibility.} Binding of a miRNA to its target mRNA is depicted as a 2-step process. Portion of the mRNA structure must be open before miRNA:mRNA base pairing can be established.}
 	\label{fig:opening_energy}
 \end{figure}
 
