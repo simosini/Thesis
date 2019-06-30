@@ -4,9 +4,9 @@
 
 MicroRNAs (miRNAs) are a family of small non-coding RNAs that regulate gene expression by binding to partially complementary regions within the 3’UTR of their target genes. Many computational methods have been employed for this task in recent years, but none of them seemed to achieve remarkable results.
 
-In this thesis, we present DeepMiRNA a classification tool based on Deep Learning that  tackles the problem of miRNA target prediction investigating the entire miRNA and 3'UTR transcripts to learn a representative set of feature descriptors related to the targeting process. 
+In this thesis, we present DeepMiRNA a Deep Learning based classification tool that  tackles the problem of miRNA target prediction investigating the entire miRNA and 3'UTR transcripts to learn a representative set of feature descriptors related to the targeting process. 
 
-We collected more than 600.000 experimentally validated homo sapiens miRNA targets from the main miRNA's databases available online and we cross-referenced them with different CLIP and CLASH datasets to obtain validated miRNA target sites to be used for training the DeepMiRNA's classifier. 
+We collected more than 600.000 experimentally validated human miRNA targets from the main miRNA's databases available online and we cross-referenced them with different CLIP and CLASH datasets to obtain validated mi\-RNA target sites to be used for training the DeepMiRNA's classifier. 
 
 Testing was then executed according to a specific working pipeline involving three steps: first, we created a set of rules to select the most probable target sites within the 3'UTR of a gene, according to both partial complementarity with the miRNA sequence and bond stability. Potential targets are then sent to the neural network to obtain a prediction which is further refined using complementary information such as site accessibility. 
 

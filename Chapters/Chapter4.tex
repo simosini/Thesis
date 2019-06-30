@@ -234,12 +234,12 @@ range of non-canonical target site structures including the vast majority of exp
 datasets. Moreover, while these relaxed conditions for the seed region generate a much larger number of candidate sites and potentially an increased quantity of false positives, the decision of whether a site represents a functional target is delegated to the neural network. This way, we ensure that minimal assumptions, and hence bias, are incorporated into the analysis. 
 
 \subsection{Longest Common Subsequence implementation}
-The computational cost of the testing stage is considerably higher than that of the training phase. The reasons lie mainly in the computation of the potential candidate sites, involving a check of complementarity and the calculation of the minimum free energy, and the cost of the filtering stage (see next section).    
+The computational cost of the testing stage is considerably higher than that of the training phase. The reasons lie mainly in the cost of the filtering stage (see next section)and the computation of the potential candidate sites, which involves the check of partial complementarity and the calculation of the minimum free energy.    
 While there is very little to do with the calculation of the interaction energy of the duplexes, which completely relies on the Vienna Cofold library, for the complementarity check we tried different approaches to reduce the computational cost.
 
 As mentioned above the seek of non-consecutive complementary nucleotides between two sequences can be seen as a special case of the problem of finding the longest common subsequence (LCS) between two strings. 
 
-The LCS version we implemented in this thesis is done using \emph{Cython}\cite{cython}. Cython is a programming language that can be seen as a superset of Python that aims to give C-like performances with code that is mostly written using native Python. 
+The LCS version we implemented is done using \emph{Cython}\cite{cython}. Cython is a programming language that can be seen as a superset of Python that aims to give C-like performances with code that is mostly written using native Python. 
 
 In fact, Cython actually works by producing Python modules where the code, however, is first translated and compiled into C.
 

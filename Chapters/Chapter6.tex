@@ -25,7 +25,7 @@ The best performing feed-forward neural network was trained using the whole trai
 	\item number of epochs = 15
 \end{itemize}
 
-The above parameters were computed using a validation set composed of about 10000 examples (20\% of the training set).
+The above parameters were computed using a validation set of about 10000 examples (20\% of the training set).
 
 Once the best model has been selected, we built a fresh network using the best parameters and we trained it holding out the 25\% of the training data for the purpose of testing its performance. This validation presented very good results in terms of predicting both positive and negative sites, with all evaluated metrics resulting in scores well above 0.9 (see figure\ref{fig:network_evaluation}).
 
@@ -136,7 +136,7 @@ Conversely, PITA reported better accuracy and F1-score, but still lower than the
 NP and NN identify respectively the number of positive and negative validated pairs in the test set, while TP, FP, TN and FN indicate the percentage of true/false positive/negative predictions. 
 In particular, these values have been computed as the fraction of predicted values of a certain class over the total size of the same class. So, for example, a TP value of $84\%$ states that of all positive samples of the test set $84\%$ were classified correctly, while an FN of $16\%$ indicates that for the negative class 16 samples out of 100 were misclassified. Those values help in giving a feel of what TPR and TNR represent. Finally, BA stands for balance accuracy.
  
-MiRAW has a true positive rate of $0.84$ indicating its better ability in identifying positives miRNA:mRNA pairs compared to the other tools. However, a large number of negative sites have also been misclassified as positive ($75\%$), meaning that it performed poorly on negative entries. This is confirmed by a very low true negative rate which gives rise to a lower value of balanced accuracy.
+MiRAW achieves a true positive rate of $0.84$ indicating its better ability in identifying positives miRNA:mRNA pairs compared to the other tools. However, a large number of negative sites have also been misclassified as positive ($75\%$), meaning that it performed poorly on negative entries. This is confirmed by a very low true negative rate which gives rise to a lower value of balanced accuracy.
 
 Conversely, DeepMiRNA shows a good ability in predicting both classes, even though it tends to be slightly biased towards negative predictions. 
 
