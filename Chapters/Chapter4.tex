@@ -1,6 +1,6 @@
 % Chapter 4
 
-\chapter{Experimental setup} % Main chapter title
+\chapter{Experimental Setup} % Main chapter title
 
 \label{Chapter4} % For referencing the chapter elsewhere, use \ref{Chapter4}
 
@@ -100,18 +100,18 @@ In our case, each variable length miRNA sequence has been split into 4 different
 \end{figure}
 
 \subsubsection{normalization and missing values}
-Another crucial part of data preprocessing concerns their normalization. In general, it's not safe to feed the network with data that takes relatively large values or that are heterogeneous (i.e have very different values ranges). In our case, however, the vectorization process guarantees that the numerical values resulting from the encoding are both small and homogeneous. Regarding missing or incomplete data, we found a very small quantity of them in the datasets retrieved, hence we simply decided to discard them.  
+Another crucial part of data preprocessing concerns their normalization. In general, it is not safe to feed the network with data that takes relatively large values or that are heterogeneous (i.e have very different values ranges). In our case, however, the vectorization process guarantees that the numerical values resulting from the encoding are both small and homogeneous. Regarding missing or incomplete data, we found a very small quantity of them in the datasets retrieved, hence we simply decided to discard them.  
 
 \subsection{Dataset preparation}
 One of the biggest challenges to face in any Machine Learning application is to get a good set of significant data.
-The main purpose is to have a sufficiently variable and representative dataset that allows the model to generalize well on new and unseen examples. This phase is probably the most important together with the network design as it's crucial for achieving good performances. It is of fundamental importance that the data is representative of the problem we want to solve: it does not matter how big is the dataset we obtain if that is not aligned with the goal we want to pursue. One should focus on finding data with features that matter to what we’re trying classify or predict and discard unrelated features. Hence, the first step of a classification process should be proper data collection, and until we achieve this, we will find ourselves constantly coming back to this step \cite{imbalanced_datasets}.
+The main purpose is to have a sufficiently variable and representative dataset that allows the model to generalize well on new and unseen examples. This phase is probably the most important together with the network design as it is crucial for achieving good performances. It is of fundamental importance that the data is representative of the problem we want to solve: it does not matter how big is the dataset we obtain if that is not aligned with the goal we want to pursue. One should focus on finding data with features that matter to what we’re trying classify or predict and discard unrelated features. Hence, the first step of a classification process should be proper data collection, and until we achieve this, we will find ourselves constantly coming back to this step \cite{imbalanced_datasets}.
 
 For the miRNA target prediction task, this requires a comprehensive dataset of verified positive and negative targets that encompass both canonical and non-canonical examples. While there are multiple data repositories providing information regarding experimentally validated positive miRNA targets\cite{dianatarbase} \cite{mirtarbase}, there are significantly fewer experimentally verified negative targets. This represents a major concern for ML-based approaches that require similar numbers of labeled examples for both classes.
 
 For our purpose, we only considered human data and we used version 8 of the Diana TarBase\footnote{\url{http://diana.imis.athena-innovation.gr/DianaTools/index.php}} and release 7.0 of the miR TarBase\footnote{\url{http://mirtarbase.mbc.nctu.edu.tw/php/index.php}} datasets. Moreover, in order to annotate the datasets with lacking informations such as molecules transcripts, we downloaded gene sequences from Ensembl\footnote{\url{https://ensembl.org/index.html}} and miRNA transcripts from miRBase\footnote{\url{http://mirbase.org}} 
 
 \subsubsection{Diana TarBase}
-Diana TarBase is the most widely used database for validated miRNA interactions. The latest version at the time of writing is $v8$ and asking for a bulk download from their website is possible to obtain a dataset of 526658 positive and 63559 negative validated targets. This dataset provides information about miRNA:mRNA interactions in the form of miRNA name, gene name and functionality as it's illustrated in Table \ref{tab:Diana}. Unfortunately, there is no information about transcript sequences or binding site locations.
+Diana TarBase is the most widely used database for validated miRNA interactions. The latest version at the time of writing is $v8$ and asking for a bulk download from their website is possible to obtain a dataset of 526658 positive and 63559 negative validated targets. This dataset provides information about miRNA:mRNA interactions in the form of miRNA name, gene name and functionality as it is illustrated in Table \ref{tab:Diana}. Unfortunately, there is no information about transcript sequences or binding site locations.
 
 \begin{table}[!t]
 	\caption{\keyword{Example of Diana TarBase entries.}}
@@ -204,7 +204,7 @@ Often, in the academic world, people tend to affirm that, in order to properly t
 
 For this reason, the selection of candidate sites in an mRNA becomes a key step for a miRNA target sites predictor because it helps to identify which regions within the mRNA have the potential to accommodate a binding site. We found out that most of the publicly available algorithms follow a similar approach: they scan the gene's 3'UTR  looking for sites that are partially complementary to the miRNA transcript; if a site meets certain criteria, it is considered to be a candidate site and is subjected to further analysis.
 
-In the light of new recent results, stating that functional miRNA targets can arise either by a single strong binding site (i.e. 6 consecutive complementary nucleotides) or by multiple weak binding sites \cite{helwak}, we believe it's essential to consider the whole 3'UTR sequence using CSSM willing to accept both canonical and non-canonical sites. These methods are less conservative and allow accepting bulges, mismatches or wobble pairs in the seed region (see figure \ref{fig:canonical}).
+In the light of new recent results, stating that functional miRNA targets can arise either by a single strong binding site (i.e. 6 consecutive complementary nucleotides) or by multiple weak binding sites \cite{helwak}, we believe it is essential to consider the whole 3'UTR sequence using CSSM willing to accept both canonical and non-canonical sites. These methods are less conservative and allow accepting bulges, mismatches or wobble pairs in the seed region (see figure \ref{fig:canonical}).
 
 \begin{figure}[hbt!]
 	\centering
@@ -267,7 +267,7 @@ In chapter \ref{Chapter3} we highlighted the importance of site accessibility fo
 
 Moreover, the use of a greedier CSSM approach may give rise to an increase in the number of potential candidate sites for each miRNA:mRNA duplex. For example, on average, where a strict canonical approach identifies $\approx$ 3-4 sites per duplex, CSS-6.0:10 identifies approximately 32 MBSs while CSS-7.0:10 about 21 and CSS-7.1:10 around 15. As a consequence, the chance of obtaining more false positives is very likely to increase.  
 
-This could represent a problem for the neural network, because it may not be able to completely discern false from true positive duplexes. This could be due, in particular, to two main factors: first of all the number of validated negative MBSs is extremely low; in fact, despite having a good number of negative miRNA:mRNA pairs, we only have a small quantity of negatively validated binding sites. Thus, we had to artificially select the negative sites for the training stage as explained in the previous section. Second, functional and non-functional sites are very similar in terms of complementarity with the pairing miRNA and, hence, we believe it's important to also consider the characteristics of the secondary structure of the duplex to improve the accuracy of the prediction and reduce the number of false positives. 
+This could represent a problem for the neural network, because it may not be able to completely discern false from true positive duplexes. This could be due, in particular, to two main factors: first of all the number of validated negative MBSs is extremely low; in fact, despite having a good number of negative miRNA:mRNA pairs, we only have a small quantity of negatively validated binding sites. Thus, we had to artificially select the negative sites for the training stage as explained in the previous section. Second, functional and non-functional sites are very similar in terms of complementarity with the pairing miRNA and, hence, we believe it is important to also consider the characteristics of the secondary structure of the duplex to improve the accuracy of the prediction and reduce the number of false positives. 
 
 To this purpose, we investigated the possibility of using an a-posteriori filter that considers the secondary structure and computes the site accessibility of the target site. The site accessibility has been computed as follows:
 \begin{itemize}

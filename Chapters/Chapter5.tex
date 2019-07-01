@@ -1,6 +1,6 @@
 % Chapter 5
 
-\chapter{Neural network design and implementation} % Main chapter title
+\chapter{Neural Network Design and Implementation} % Main chapter title
 
 \label{Chapter5} % For referencing the chapter elsewhere, use \ref{Chapter5} 
 
@@ -97,7 +97,7 @@ The architecture of our convolutional network is shown in figure \ref{fig:cnn} a
 For the compiling step required for the training stage, we selected the binary cross entropy loss function and we set the Adam optimizer with the same parameters used for the MLP network.
 
 Despite showing discrete results in terms of accuracy and F1-score on the validation set composed of never seen miRNA:MBS examples, the CNN does not perform very well on the test set especially if compared to the feed-forward network. The main issue
-concerns its scarce ability in correctly identifying negative miRNA:mRNA pairs. This fact, unfortunately, prevents this model from having a good generalization. We believe the main reason behind this, it's most likely due to the very small amount of negatively validated entries in the training set: issue that, instead, does not seem to affect the MLP model performance.
+concerns its scarce ability in correctly identifying negative miRNA:mRNA pairs. This fact, unfortunately, prevents this model from having a good generalization. We believe the main reason behind this, it is most likely due to the very small amount of negatively validated entries in the training set: issue that, instead, does not seem to affect the MLP model performance.
 
   
 
