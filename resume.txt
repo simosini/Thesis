@@ -1,0 +1,20 @@
+__Contesto__
+
+MicroRNAs are a family of small non-coding RNA molecules that have the ability to  down-regulate gene expression by binding to partially complementary messenger RNA (mRNA) regions preventing their translation to peptides and proteins. miRNAs are involved in many biological processes and diseases, hence investigating the mechanisms governing target selection is of utmost importance.
+
+__Problema__
+
+Currently, there are two open problems regarding miRNAs: the first concerns the identification of their host genes (i.e the genomic region coding miRNAs), while the second is miRNA's target prediction. Our work focuses on the latter.
+Despite recent advances in understanding miRNA:mRNA interactions, many discovered miRNAs do not yet have identified targets. Various experiments have proved that a single miRNA can regulate hundreds of target mRNAs and bind to different locations, however, these validations are time-consuming and costly and, hence, the aid of computational methods soon became fundamental.
+Due to these facts, a variety of computational algorithms have been deployed to address this problem, but their results are still inconsistent and the identification of functional miRNA targets remains a difficult challenge.
+We examined most of the publicly available prediction tools finding out that they suffer from two major limitations: on one side they use hand-crafted features based on the knowledge of previously identified pairs. Creating these features is both slow and error-prone, moreover, the lack of a complete understanding of the mechanism that regulates the targeting process, gives no guarantee for generality. Secondly, existing tools often fail in filtering out false negatives producing very low levels of sensitivity. This, in particular, is due to the assumption that is the miRNA seed region, defined as the 7-nucleotide sequence starting from the second, that retains most of the information concerning the process of target selection, and their focus is on these canonical sites.
+The main problem of this approach is that there are only four letters in RNA's alphabet and, thus, the chance of finding a random mRNA site complementary to the seed region is rather high.
+
+__Architettura__
+
+In this thesis, we propose DeepMiRNA, a deep learning based classifier that exploits neural networks ability to autonomously learn and identify patterns to appropriately represent data. To this end, we fed the network with raw data (i.e the actual biological sequences), without incorporating any human-crafted feature that could potentially introduce noise and, hence, degrade the model's performance.
+DeepMiRNA works by scanning the whole 3'UTR of a given gene searching for potential candidate binding sites. Those mRNA's fragments are selected considering both stability of the bond (in terms of free energy released) and complementarity between an extended seed region of the miRNA (defined as the first 10 nucleotides from the 5' end) and the fragment itself. Selected targets are then sent to the neural network for classification. The resulting predictions can then be further refined by incorporating information about the secondary structure of the gene and computing site accessibility.
+
+__Risultati__
+
+When compared to other state-of-art miRNA target prediction tools, DeepMiRNA showed a significant performance improvement, thus demonstrating the importance of considering the whole miRNA sequence.  In particular, the obtained results confirmed that there exist many functional non-canonical binding structures and that commonly used features such as site accessibility energy, species conservation, and seed region complementarity are important but not sufficient for discerning between functional and non-functional target sites.  

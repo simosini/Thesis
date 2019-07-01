@@ -200,7 +200,7 @@ To correctly evaluate the network performance we used the experimentally verifie
 Nevertheless, using suitable metrics, such as F1-score, precision, recall and balanced accuracy, as described in \cite{imbalanced}, is still possible to effectively overcome this issue.
 
 \subsection{Candidate site selection methods: CSSM}
-Often, in the academic world, people tend to affirm that, in order to properly train a neural network, one needs to have a huge amount of data available. While we partially disagree with this common belief, convinced that quality and variety prevail over quantity, we still agree that in the case of miRNA targets prediction the available experimentally validated data is still not sufficiently representative of the task and the candidate site selection step effectively narrows the search space to simplify the NN classification task.
+Often, in the Machine Learning community, people tend to affirm that, in order to properly train a neural network, one needs to have a huge amount of data available. While we partially disagree with this common belief, convinced that quality and variety prevail over quantity, we still agree that in the case of miRNA targets prediction the available experimentally validated data is still not sufficiently representative of the task and the candidate site selection step effectively narrows the search space to simplify the NN classification task.
 
 For this reason, the selection of candidate sites in an mRNA becomes a key step for a miRNA target sites predictor because it helps to identify which regions within the mRNA have the potential to accommodate a binding site. We found out that most of the publicly available algorithms follow a similar approach: they scan the gene's 3'UTR  looking for sites that are partially complementary to the miRNA transcript; if a site meets certain criteria, it is considered to be a candidate site and is subjected to further analysis.
 
@@ -243,7 +243,7 @@ While there is very little to do with the calculation of the interaction energy 
 
 As mentioned above the seek of non-consecutive complementary nucleotides between two sequences can be seen as a special case of the problem of finding the longest common subsequence (LCS) between two strings. 
 
-The LCS version we implemented is done using \emph{Cython}\cite{cython}. Cython is a programming language that can be seen as a superset of Python that aims to give C-like performances with code that is mostly written using native Python. 
+We implemented our version of LCS using \emph{Cython}\cite{cython}. Cython is a programming language that can be seen as a superset of Python that aims to give C-like performances with code that is mostly written using native Python. 
 
 In fact, Cython actually works by producing Python modules where the code, however, is first translated and compiled into C.
 
