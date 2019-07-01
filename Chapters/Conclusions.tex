@@ -12,7 +12,7 @@ On the other side, its imprecise nature makes the decision of which computationa
 
 For the miRNA's target prediction task, however, the need for finding suitable patterns to distinguish functional binding sites from non-functional guided our choice towards a neural network. 
 
-Nowadays, deep learning has been exploited in many fields for various tasks, from image recognition to natural language processing with different results. The main advantage of its use consists in its capacity to automatically extract its own data feature descriptors. However, the more complex the network architecture, the more computational power (and data) it needs to properly extract valuable knowledge.
+Nowadays, deep learning has been exploited in many fields for various tasks, from image recognition to natural language processing with various results. The main advantage of its use consists in its capacity to automatically extract its own data feature descriptors. However, the more complex the network architecture, the more computational power (and data) it needs to properly extract valuable knowledge.
 
 In this thesis, we tackled the problem of miRNA target classification adopting a neutral approach towards the prediction process, avoiding incorporating any hand-crafted feature related to the targeting process. The obtained results and the comparison between DeepMiRNA and other descriptor-based tools suggest that current knowledge is still not sufficient to accurately capture all aspects of the miRNA targeting process. In fact, DeepMiRNA's better performance over most of the available feature-based predictors, indicates that the descriptors learned by our neural network are able to encode both current knowledge and additional information yet to be determined.   
 
@@ -22,7 +22,7 @@ Thus, we can affirm that the amount of validated data available for the task is 
 
 The binding sites selection steps also involved the relaxation of the canonical seed region into an extended miRNA subsequence comprising $10$ nucleotides from the first to the tenth (in the best configuration), to accommodate the presence of non-canonical targets: we called this sequence \emph{extended seed region}. This choice resulted in a better overall performance compared to other software utilizing a more conservative approach that considers only canonical binding sites and suggests that perfect seed region complementarity is not a sufficient discriminant to correctly identify miRNA's targets.
 
-Another important task within this thesis was the choice of the neural network structure. Inspired by this article \cite{continuous_representation} we decided to face the vectorization step using two different algorithms: on one side the classical one-hot encoding of the sequences and on the other the continuous representation of biological sequence based on Dnad2Vec \cite{dna_distributed_repr}. This gave us the opportunity to tackle the miRNA targeting process from two different points of view.
+Another important task within this thesis was the choice of the neural network structure. Inspired by this article \cite{continuous_representation} we decided to face the vectorization step using two different algorithms: on one side the classical one-hot encoding of the sequences and on the other the continuous representation of biological sequence based on Dna2Vec \cite{dna_distributed_repr}. This gave us the opportunity to tackle the miRNA targeting process from two different points of view.
 
 Testing results have decreed that the classical approach using an MLP design offers a more reliable and robust classifier. This is most likely due to the lack of complete representativeness exhibited by the available data and the more complex structure of a CNN that requires a wider range of training data to correctly set its weights. 
 
@@ -36,7 +36,7 @@ For the development of DeepMiRNA, anyhow, we decided to only use data relative t
 
 Besides, even though the work presented in this thesis focused on the prediction of human miRNA targets, the same methodology can be applied to build target prediction models for any other living species, aware that gathering enough representative data will be of crucial importance for the new task. 
 
-We conclude this thesis by considering that the presented approach will certainly benefit from further experimental studies that will serve to validate new predictions obtained by DeepMiRNA, but also to generate new experimental data to reliably expand the training of the model in both its configurations.
+We conclude by considering that the presented approach will certainly benefit from further experimental studies that will serve to validate new predictions obtained by DeepMiRNA, but also to generate new experimental data to reliably expand the training of the model in both its configurations.
  
 
   
